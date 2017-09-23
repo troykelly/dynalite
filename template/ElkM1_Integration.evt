@@ -85,41 +85,41 @@ Task4()
 Task5()
 {
 	Name="Motion Task"
-//Extract Preset Number from Opcode
+	//Extract Preset Number from Opcode
 
 	LDA ~3					//Opcode
-    CMP #0x65 				// Linear Preset 
-    BRZ Linear_Preset
-    CMP #0x00
-    BRZ APPLY_BANK
-    CMP #0x01
-    BRZ APPLY_BANK
-    CMP #0x02
-    BRZ APPLY_BANK
-    CMP #0x03
-    BRZ APPLY_BANK
-    CMP #0x0A
-    BRZ ADJUST_OPCODE
-    CMP #0x0B
-    BRZ ADJUST_OPCODE
-    CMP #0x0C
-    BRZ ADJUST_OPCODE
-    CMP #0x0D
-    BRZ ADJUST_OPCODE
-    NULL
+	CMP #0x65 				// Linear Preset 
+	BRZ Linear_Preset
+	CMP #0x00
+	BRZ APPLY_BANK
+	CMP #0x01
+	BRZ APPLY_BANK
+	CMP #0x02
+	BRZ APPLY_BANK
+	CMP #0x03
+	BRZ APPLY_BANK
+	CMP #0x0A
+	BRZ ADJUST_OPCODE
+	CMP #0x0B
+	BRZ ADJUST_OPCODE
+	CMP #0x0C
+	BRZ ADJUST_OPCODE
+	CMP #0x0D
+	BRZ ADJUST_OPCODE
+	NULL
 Linear_Preset:					
-    LDA ~2       			//Load preset code   
-    BRA PresetNumber      
+	LDA ~2       			//Load preset code   
+	BRA PresetNumber      
 ADJUST_OPCODE:
-    SUB #6      			//Ajust opcode
-APPLY_BANK: 
-    STA ~8
-    LDA ~5
-    LDX #8
-    MUL
-    ADD ~8
+	SUB #6      			//Ajust opcode
+	APPLY_BANK: 
+	STA ~8
+	LDA ~5
+	LDX #8
+	MUL
+	ADD ~8
 PresetNumber:
-    INC              		 // preset number is 1 Based
+	INC              		 // preset number is 1 Based
 	LDX #0									//initialise counter
 	CMP #Preset1Trigger
 	BRZ MotionDetected	
@@ -182,10 +182,10 @@ MotionDetected:
 	CMP #0				// No
 	BRZ DayNightCheckMotion
 	Null
-DayNightCheckMotion:	
+	DayNightCheckMotion:	
 	LDA ~10					//Day Night
-    CMP #1 				// Is it night
-    BRZ NightMotion
+	CMP #1 				// Is it night
+	BRZ NightMotion
 	Jump(MotionIdle)
 NightMotion:
 	LDA ~11					//Arm State
@@ -216,11 +216,11 @@ MotionIdle:
 	BRZ DayNightCheckIdle
 	Preset(A=77,P=44,F=0)
 	Null	
-DayNightCheckIdle:	
+	DayNightCheckIdle:	
 	LDA ~10					//Day Night
-    CMP #1 				// Is it night
-    BRZ NightIdle
-    Null
+	CMP #1 				// Is it night
+	BRZ NightIdle
+	Null
 NightIdle:
 	LDA ~11					//Arm State
 	CMP #0				// Disarmed
@@ -247,40 +247,40 @@ Task6()
 	Name="Day Night Tracking"
 	LDA #0					//Reset override
 	STA ~13	
-//Extract Preset Number from Opcode	
+	//Extract Preset Number from Opcode	
 	LDA ~3					//Opcode
-    CMP #0x65 				// Linear Preset 
-    BRZ Linear_Preset
-    CMP #0x00
-    BRZ APPLY_BANK
-    CMP #0x01
-    BRZ APPLY_BANK
-    CMP #0x02
-    BRZ APPLY_BANK
-    CMP #0x03
-    BRZ APPLY_BANK
-    CMP #0x0A
-    BRZ ADJUST_OPCODE
-    CMP #0x0B
-    BRZ ADJUST_OPCODE
-    CMP #0x0C
-    BRZ ADJUST_OPCODE
-    CMP #0x0D
-    BRZ ADJUST_OPCODE
-    NULL
-Linear_Preset:					
-    LDA ~2       			//Load preset code   
-    BRA PresetNumber      
+	CMP #0x65 				// Linear Preset 
+	BRZ Linear_Preset
+	CMP #0x00
+	BRZ APPLY_BANK
+	CMP #0x01
+	BRZ APPLY_BANK
+	CMP #0x02
+	BRZ APPLY_BANK
+	CMP #0x03
+	BRZ APPLY_BANK
+	CMP #0x0A
+	BRZ ADJUST_OPCODE
+	CMP #0x0B
+	BRZ ADJUST_OPCODE
+	CMP #0x0C
+	BRZ ADJUST_OPCODE
+	CMP #0x0D
+	BRZ ADJUST_OPCODE
+	NULL
+	Linear_Preset:					
+	LDA ~2       			//Load preset code   
+	BRA PresetNumber      
 ADJUST_OPCODE:
-    SUB #6      			//Ajust opcode
-APPLY_BANK: 
-    STA ~8
-    LDA ~5
-    LDX #8
-    MUL
-    ADD ~8
+	SUB #6      			//Ajust opcode
+	APPLY_BANK: 
+	STA ~8
+	LDA ~5
+	LDX #8
+	MUL
+	ADD ~8
 PresetNumber:
-    INC              		 // preset number is 1 Based
+	INC              		 // preset number is 1 Based
 	CMP #PresetNight
 	BRZ Night
 	CMP #PresetDay
@@ -348,40 +348,40 @@ Task7()
 	Name="Arm Disarm Task"
 	LDA #0					//Reset override
 	STA ~13		
-//Extract Preset Number from Opcode
+	//Extract Preset Number from Opcode
 	LDA ~3					//Opcode
-    CMP #0x65 				// Linear Preset 
-    BRZ Linear_Preset
-    CMP #0x00
-    BRZ APPLY_BANK
-    CMP #0x01
-    BRZ APPLY_BANK
-    CMP #0x02
-    BRZ APPLY_BANK
-    CMP #0x03
-    BRZ APPLY_BANK
-    CMP #0x0A
-    BRZ ADJUST_OPCODE
-    CMP #0x0B
-    BRZ ADJUST_OPCODE
-    CMP #0x0C
-    BRZ ADJUST_OPCODE
-    CMP #0x0D
-    BRZ ADJUST_OPCODE
-    NULL
-Linear_Preset:					
-    LDA ~2       			//Load preset code   
-    BRA PresetNumber      
+	CMP #0x65 				// Linear Preset 
+	BRZ Linear_Preset
+	CMP #0x00
+	BRZ APPLY_BANK
+	CMP #0x01
+	BRZ APPLY_BANK
+	CMP #0x02
+	BRZ APPLY_BANK
+	CMP #0x03
+	BRZ APPLY_BANK
+	CMP #0x0A
+	BRZ ADJUST_OPCODE
+	CMP #0x0B
+	BRZ ADJUST_OPCODE
+	CMP #0x0C
+	BRZ ADJUST_OPCODE
+	CMP #0x0D
+	BRZ ADJUST_OPCODE
+	NULL
+	Linear_Preset:					
+	LDA ~2       			//Load preset code   
+	BRA PresetNumber      
 ADJUST_OPCODE:
-    SUB #6      			//Ajust opcode
-APPLY_BANK: 
-    STA ~8
-    LDA ~5
-    LDX #8
-    MUL
-    ADD ~8
+	SUB #6      			//Ajust opcode
+	APPLY_BANK: 
+	STA ~8
+	LDA ~5
+	LDX #8
+	MUL
+	ADD ~8
 PresetNumber:
-    INC              		 // preset number is 1 Based
+	INC              		 // preset number is 1 Based
 	CMP #ArmStateAway
 	BRZ Away
 	CMP #ArmStateHome
@@ -402,8 +402,8 @@ Disarm:
 	STA ~11
 SetLighting:
 	LDA ~10					//Day Night
-    CMP #1 				// Is it night
-    BRZ Night
+	CMP #1 				// Is it night
+	BRZ Night
 	Null
 Night:
 	LDA ~11					//Arm State
@@ -458,41 +458,41 @@ End:
 Task8()
 {
 	Name="Override Area Preset"
-//Extract Preset Number from Opcode
+	//Extract Preset Number from Opcode
 
 	LDA ~3					//Opcode
-    CMP #0x65 				// Linear Preset 
-    BRZ Linear_Preset
-    CMP #0x00
-    BRZ APPLY_BANK
-    CMP #0x01
-    BRZ APPLY_BANK
-    CMP #0x02
-    BRZ APPLY_BANK
-    CMP #0x03
-    BRZ APPLY_BANK
-    CMP #0x0A
-    BRZ ADJUST_OPCODE
-    CMP #0x0B
-    BRZ ADJUST_OPCODE
-    CMP #0x0C
-    BRZ ADJUST_OPCODE
-    CMP #0x0D
-    BRZ ADJUST_OPCODE
-    NULL
-Linear_Preset:					
-    LDA ~2       			//Load preset code   
-    BRA PresetNumber      
+	CMP #0x65 				// Linear Preset 
+	BRZ Linear_Preset
+	CMP #0x00
+	BRZ APPLY_BANK
+	CMP #0x01
+	BRZ APPLY_BANK
+	CMP #0x02
+	BRZ APPLY_BANK
+	CMP #0x03
+	BRZ APPLY_BANK
+	CMP #0x0A
+	BRZ ADJUST_OPCODE
+	CMP #0x0B
+	BRZ ADJUST_OPCODE
+	CMP #0x0C
+	BRZ ADJUST_OPCODE
+	CMP #0x0D
+	BRZ ADJUST_OPCODE
+	NULL
+	Linear_Preset:					
+	LDA ~2       			//Load preset code   
+	BRA PresetNumber      
 ADJUST_OPCODE:
-    SUB #6      			//Ajust opcode
-APPLY_BANK: 
-    STA ~8
-    LDA ~5
-    LDX #8
-    MUL
-    ADD ~8
+	SUB #6      			//Ajust opcode
+	APPLY_BANK: 
+	STA ~8
+	LDA ~5
+	LDX #8
+	MUL
+	ADD ~8
 PresetNumber:
-    INC              		 // preset number is 1 Based
+	INC              		 // preset number is 1 Based
 	CMP #HomeIdle
 	BRZ RestoreAuto
 	CMP #HomeMotion
