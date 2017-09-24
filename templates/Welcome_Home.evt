@@ -1,0 +1,212 @@
+
+//@ name="Welcome Home - Away Task"
+//@ description="Works an any device.\nA dummy preset toggle message will trigger one series of preset messages for welcome home and another series of preset messages for away."
+
+#const DummyArea 200		//@ Name="Dummy Area Number" Type=Area Description="Select dummy area." Category="Dummy Trigger"
+#const DummyPresetHome 1	//@ Name="Dummy Preset Number For Welcome Home" areaparam = DummyArea Type=preset Description="Select dummy area" Category="Dummy Trigger"
+#const DummyPresetAway 4	//@ Name="Dummy Preset Number For Away" Type=preset areaparam = DummyArea Description="Select dummy area" Category="Dummy Trigger"
+#const NumberOfAreasHome 4	//@ Name="Number Of Areas for Welcome Home (Max 10)" type=Byte Description="Select number of areas For welcome Home" Category="Welcome Home"
+#const FadeHome 2			//@ Name="Fade Time" type=FadeTime Description="Select fade time of preset message" Category="Welcome Home"
+#const DelayHome 4			//@ Name="Delay Time" type=DelayTime Description="Select delay between preset messages" Category="Welcome Home"
+#const GlobalPresetHome 2	//@ Name="Set preset for all areas" type=Preset Description="Set presets globally" Category="Welcome Home"
+#const Area1Home 2			//@ Name="Area" type=area Visible="NumberOfAreasHome>=1" Category="Welcome Home" SubCategory="First Area" Description="First area in pathway"
+#const Preset1Home 2		//@ Name="Preset" type=preset areaparam=Area1Home masterparam=GlobalPresetHome Visible="NumberOfAreasHome>=1" Category="Welcome Home" SubCategory="First Area" Description="First area in pathway"
+#const Area2Home 3			//@ Name="Area" type=area Visible="NumberOfAreasHome>=2" Category="Welcome Home" SubCategory="Second Area" Description="Second area in pathway"
+#const Preset2Home 2		//@ Name="Preset" type=preset areaparam=Area2Home masterparam=GlobalPresetHome Visible="NumberOfAreasHome>=2" Category="Welcome Home" SubCategory="Second Area" Description="Second area in pathway"
+#const Area3Home 4			//@ Name="Area" type=area Visible="NumberOfAreasHome>=3" Category="Welcome Home" SubCategory="Third Area" Description="Third area in pathway"
+#const Preset3Home 2		//@ Name="Preset" type=preset areaparam=Area3Home masterparam=GlobalPresetHome Visible="NumberOfAreasHome>=3" Category="Welcome Home" SubCategory="Third Area" Description="Third area in pathway"
+#const Area4Home 5			//@ Name="Area" type=area Visible="NumberOfAreasHome>=4" Category="Welcome Home" SubCategory="Fourth Area" Description="Fourth area in pathway"
+#const Preset4Home 2		//@ Name="Preset" type=preset areaparam=Area4Home masterparam=GlobalPresetHome Visible="NumberOfAreasHome>=4" Category="Welcome Home" SubCategory="Fourth Area" Description="Fourth area in pathway"
+#const Area5Home 6			//@ Name="Area" type=area Visible="NumberOfAreasHome>=5" Category="Welcome Home" SubCategory="Fifth Area" Description="Fifth area in pathway"
+#const Preset5Home 2		//@ Name="Preset" type=preset areaparam=Area5Home masterparam=GlobalPresetHome Visible="NumberOfAreasHome>=5" Category="Welcome Home" SubCategory="Fifth Area" Description="Fifth area in pathway"
+#const Area6Home 7			//@ Name="Area" type=area Visible="NumberOfAreasHome>=6" Category="Welcome Home" SubCategory="Sixth Area" Description="Sixth area in pathway"
+#const Preset6Home 2		//@ Name="Preset" type=preset areaparam=Area6Home masterparam=GlobalPresetHome Visible="NumberOfAreasHome>=6" Category="Welcome Home" SubCategory="Sixth Area" Description="Sixth area in pathway"
+#const Area7Home 8			//@ Name="Area" type=area Visible="NumberOfAreasHome>=7" Category="Welcome Home" SubCategory="Seventh Area" Description="Seventh area in pathway"
+#const Preset7Home 2		//@ Name="Preset" type=preset areaparam=Area7Home masterparam=GlobalPresetHome Visible="NumberOfAreasHome>=7" Category="Welcome Home" SubCategory="Seventh Area" Description="Seventh area in pathway"
+#const Area8Home 9			//@ Name="Area" type=area Visible="NumberOfAreasHome>=8" Category="Welcome Home" SubCategory="Eighth Area" Description="Eighth area in pathway"
+#const Preset8Home 2		//@ Name="Preset" type=preset areaparam=Area8Home masterparam=GlobalPresetHome Visible="NumberOfAreasHome>=8" Category="Welcome Home" SubCategory="Eighth Area" Description="Eighth area in pathway"
+#const Area9Home 10			//@ Name="Area" type=area Visible="NumberOfAreasHome>=9" Category="Welcome Home" SubCategory="Ninth Area" Description="Ninth area in pathway"
+#const Preset9Home 2		//@ Name="Preset" type=preset areaparam=Area9Home masterparam=GlobalPresetHome Visible="NumberOfAreasHome>=9" Category="Welcome Home" SubCategory="Ninth Area" Description="Ninth area in pathway"
+#const Area10Home 11		//@ Name="Area" type=area Visible="NumberOfAreasHome>=10" Category="Welcome Home" SubCategory="Tenth Area" Description="Tenth area in pathway"
+#const Preset10Home 2		//@ Name="Preset" type=preset areaparam=Area10Home masterparam=GlobalPresetHome Visible="NumberOfAreasHome>=10" Category="Welcome Home" SubCategory="Tenth Area" Description="Tenth area in pathway"
+
+#const NumberOfAreasAway 3	//@ Name="Number Of Areas for Away (Max 10)" type=Byte Description="Select number of areas For Away" Category="Away"
+#const FadeAway 2			//@ Name="Fade Time (Seconds)" type=Byte Description="Select fade time (seconds) of preset message" Category="Away"
+#const DelayAway 1			//@ Name="Delay Time (Seconds)" type=Byte Description="Select delay (seconds) between preset messages" Category="Away"
+#const GlobalPresetAway 5	//@ Name="Set preset for all areas" type=Preset Description="Set presets globally" Category="Away"
+#const Area1Away 2			//@ Name="Area" type=area Visible="NumberOfAreasAway>=1" Category="Away" SubCategory="First Area" Description="First area in pathway"
+#const Preset1Away 5		//@ Name="Preset" type=preset areaparam=Area1Away masterparam=GlobalPresetAway Visible="NumberOfAreasAway>=1" Category="Away" SubCategory="First Area" Description="First area in pathway"
+#const Area2Away 3			//@ Name="Area" type=area Visible="NumberOfAreasAway>=2" Category="Away" SubCategory="Second Area" Description="Second area in pathway"
+#const Preset2Away 5		//@ Name="Preset" type=preset areaparam=Area2Away masterparam=GlobalPresetAway Visible="NumberOfAreasAway>=2" Category="Away" SubCategory="Second Area" Description="Second area in pathway"
+#const Area3Away 4			//@ Name="Area" type=area Visible="NumberOfAreasAway>=3" Category="Away" SubCategory="Third Area" Description="Third area in pathway"
+#const Preset3Away 5		//@ Name="Preset" type=preset areaparam=Area3Away masterparam=GlobalPresetAway Visible="NumberOfAreasAway>=3" Category="Away" SubCategory="Third Area" Description="Third area in pathway"
+#const Area4Away 5			//@ Name="Area" type=area Visible="NumberOfAreasAway>=4" Category="Away" SubCategory="Fourth Area" Description="Fourth area in pathway"
+#const Preset4Away 5		//@ Name="Preset" type=preset areaparam=Area4Away masterparam=GlobalPresetAway Visible="NumberOfAreasAway>=4" Category="Away" SubCategory="Fourth Area" Description="Fourth area in pathway"
+#const Area5Away 6			//@ Name="Area" type=area Visible="NumberOfAreasAway>=5" Category="Away" SubCategory="Fifth Area" Description="Fifth area in pathway"
+#const Preset5Away 5		//@ Name="Preset" type=preset areaparam=Area5Away masterparam=GlobalPresetAway Visible="NumberOfAreasAway>=5" Category="Away" SubCategory="Fifth Area" Description="Fifth area in pathway"
+#const Area6Away 7			//@ Name="Area" type=area Visible="NumberOfAreasAway>=6" Category="Away" SubCategory="Sixth Area" Description="Sixth area in pathway"
+#const Preset6Away 5		//@ Name="Preset" type=preset areaparam=Area6Away masterparam=GlobalPresetAway Visible="NumberOfAreasAway>=6" Category="Away" SubCategory="Sixth Area" Description="Sixth area in pathway"
+#const Area7Away 8			//@ Name="Area" type=area Visible="NumberOfAreasAway>=7" Category="Away" SubCategory="Seventh Area" Description="Seventh area in pathway"
+#const Preset7Away 5		//@ Name="Preset" type=preset areaparam=Area7Away masterparam=GlobalPresetAway Visible="NumberOfAreasAway>=7" Category="Away" SubCategory="Seventh Area" Description="Seventh area in pathway"
+#const Area8Away 9			//@ Name="Area" type=area Visible="NumberOfAreasAway>=8" Category="Away" SubCategory="Eighth Area" Description="Eighth area in pathway"
+#const Preset8Away 5		//@ Name="Preset" type=preset areaparam=Area8Away masterparam=GlobalPresetAway Visible="NumberOfAreasAway>=8" Category="Away" SubCategory="Eighth Area" Description="Eighth area in pathway"
+#const Area9Away 10			//@ Name="Area" type=area Visible="NumberOfAreasAway>=9" Category="Away" SubCategory="Ninth Area" Description="Ninth area in pathway"
+#const Preset9Away 5		//@ Name="Preset" type=preset areaparam=Area9Away masterparam=GlobalPresetAway Visible="NumberOfAreasAway>=9" Category="Away" SubCategory="Ninth Area" Description="Ninth area in pathway"
+#const Area10Away 11		//@ Name="Area" type=area Visible="NumberOfAreasAway>=10" Category="Away" SubCategory="Tenth Area" Description="Tenth area in pathway"
+#const Preset10Away 5		//@ Name="Preset" type=preset areaparam=Area10Away masterparam=GlobalPresetAway Visible="NumberOfAreasAway>=10" Category="Away" SubCategory="Tenth Area" Description="Tenth area in pathway"
+Startup1()
+{
+	Name="Start Task"
+}
+
+Task1()
+{
+	Name="Control Task"
+	start(0x1c,DummyArea,x,x,x,x,x)						//task is triggered on dummy preset
+	Copy @0,~0,7							//copy trigger message
+	Canceltask(2)
+	Starttask(2)
+}
+
+Task2()
+{
+	Name="Home - Away Task"
+//Extract Preset Number from Opcode
+
+	LDA ~3					//Opcode
+    CMP #0x65 				// Linear Preset
+    BRZ Linear_Preset
+    CMP #0x00
+    BRZ APPLY_BANK
+    CMP #0x01
+    BRZ APPLY_BANK
+    CMP #0x02
+    BRZ APPLY_BANK
+    CMP #0x03
+    BRZ APPLY_BANK
+    CMP #0x0A
+    BRZ ADJUST_OPCODE
+    CMP #0x0B
+    BRZ ADJUST_OPCODE
+    CMP #0x0C
+    BRZ ADJUST_OPCODE
+    CMP #0x0D
+    BRZ ADJUST_OPCODE
+    NULL
+Linear_Preset:
+    LDA ~2       			//Load preset code
+    BRA PresetNumber
+ADJUST_OPCODE:
+    SUB #6      			//Ajust opcode
+APPLY_BANK:
+    STA ~8
+    LDA ~5
+    LDX #8
+    MUL
+    ADD ~8
+PresetNumber:
+    INC              		 // preset number is 1 Based
+	CMP #DummyPresetHome
+	BRZ Home
+	CMP #DummyPresetAway
+	BRZ Away
+	Null
+Home:
+	LDX #0									//initialise counter
+	Preset(A=Area1Home,P=Preset1Home,F=FadeHome)		//send first message
+	INCX									//incremnet counter
+	CMPX #NumberOfAreasHome						//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	Delay(DelayHome)							//delay before next message
+	Preset(A=Area2Home,P=Preset2Home,F=FadeHome)
+	INCX
+	CMPX #NumberOfAreasHome
+	BRZ End
+	Delay(DelayHome)
+	Preset(A=Area3Home,P=Preset3Home,F=FadeHome)
+	INCX
+	CMPX #NumberOfAreasHome
+	BRZ End
+	Delay(DelayHome)
+	Preset(A=Area4Home,P=Preset4Home,F=FadeHome)
+	INCX
+	CMPX #NumberOfAreasHome
+	BRZ End
+	Delay(DelayHome)
+	Preset(A=Area5Home,P=Preset5Home,F=FadeHome)
+	INCX
+	CMPX #NumberOfAreasHome
+	BRZ End
+	Delay(DelayHome)
+	Preset(A=Area6Home,P=Preset6Home,F=FadeHome)
+	INCX
+	CMPX #NumberOfAreasHome
+	BRZ End
+	Delay(DelayHome)
+	Preset(A=Area7Home,P=Preset7Home,F=FadeHome)
+	INCX
+	CMPX #NumberOfAreasHome
+	BRZ End
+	Delay(DelayHome)
+	Preset(A=Area8Home,P=Preset8Home,F=FadeHome)
+	INCX
+	CMPX #NumberOfAreasHome
+	BRZ End
+	Delay(DelayHome)
+	Preset(A=Area9Home,P=Preset9Home,F=FadeHome)
+	INCX
+	CMPX #NumberOfAreasHome
+	BRZ End
+	Delay(DelayHome)
+	Preset(A=Area10Home,P=Preset10Home,F=FadeHome)
+	Null
+Away:
+	LDX #0									//initialise counter
+	Preset(A=Area1Away,P=Preset1Away,F=FadeAway)		//send first message
+	INCX									//incremnet counter
+	CMPX #NumberOfAreasAway						//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	Delay(DelayAway)							//delay before next message
+	Preset(A=Area2Away,P=Preset2Away,F=FadeAway)
+	INCX
+	CMPX #NumberOfAreasAway
+	BRZ End
+	Delay(DelayAway)
+	Preset(A=Area3Away,P=Preset3Away,F=FadeAway)
+	INCX
+	CMPX #NumberOfAreasAway
+	BRZ End
+	Delay(DelayAway)
+	Preset(A=Area4Away,P=Preset4Away,F=FadeAway)
+	INCX
+	CMPX #NumberOfAreasAway
+	BRZ End
+	Delay(DelayAway)
+	Preset(A=Area5Away,P=Preset5Away,F=FadeAway)
+	INCX
+	CMPX #NumberOfAreasAway
+	BRZ End
+	Delay(DelayAway)
+	Preset(A=Area6Away,P=Preset6Away,F=FadeAway)
+	INCX
+	CMPX #NumberOfAreasAway
+	BRZ End
+	Delay(DelayAway)
+	Preset(A=Area7Away,P=Preset7Away,F=FadeAway)
+	INCX
+	CMPX #NumberOfAreasAway
+	BRZ End
+	Delay(DelayAway)
+	Preset(A=Area8Away,P=Preset8Away,F=FadeAway)
+	INCX
+	CMPX #NumberOfAreasAway
+	BRZ End
+	Delay(DelayAway)
+	Preset(A=Area9Away,P=Preset9Away,F=FadeAway)
+	INCX
+	CMPX #NumberOfAreasAway
+	BRZ End
+	Delay(DelayAway)
+	Preset(A=Area10Away,P=Preset10Away,F=FadeAway)
+End:
+}

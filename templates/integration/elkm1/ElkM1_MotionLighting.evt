@@ -4,14 +4,14 @@
 
 #const ManagedArea 8			//@ Name="Managed Area" Type=Area MatchDevice=True Description="Area being managed" Category="Managed Area"
 
-#const DayMotionTrack 1 	//@ Name="Daytime Motion Events" Type=Boolean Description="Turn lighting on during the day (0=False, 1=True)" Category="Event Presets"
+#const DayMotionTrack 1 	//@ Name="Daytime Motion Events" Type=Byte Description="Turn lighting on during the day (0=False, 1=True)" Category="Event Presets"
 #const HomeIdle 9					//@ Name="Idle Preset Home" Type=Preset areaparam=ManagedArea Description="Preset for idle state when home." Category="Event Presets"
 #const HomeMotion 10			//@ Name="Motion Preset Home" Type=Preset areaparam=ManagedArea Description="Preset for motion state when home." Category="Event Presets"
 #const AwayIdle 11				//@ Name="Idle Preset Away" Type=Preset areaparam=ManagedArea Description="Preset for idle state when away." Category="Event Presets"
 #const AwayMotion 12			//@ Name="Motion Preset Away" Type=Preset areaparam=ManagedArea Description="Preset for motion state when away." Category="Event Presets"
 #const SleepIdle 13				//@ Name="Idle Preset Sleep" Type=Preset areaparam=ManagedArea Description="Preset for idle state when sleep." Category="Event Presets"
 #const SleepMotion 14			//@ Name="Motion Preset Sleep" Type=Preset areaparam=ManagedArea Description="Preset for motion state when sleep." Category="Event Presets"
-#const DayMotion 1				//@ Name="Motion Preset Day" Type=Preset areaparam=ManagedArea Description="Preset for motion during the day." Category="Event Presets"
+#const DayMotion 1				//@ Name="Motion Preset Day" Type=Preset areaparam=ManagedArea Description="Preset for motion during the day." Category="Event Presets" Visible="DayMotionTrack==1"
 #const DayState 4					//@ Name="Day Preset" Type=Preset areaparam=ManagedArea Description="Preset for area during the day." Category="Event Presets"
 
 #const NumberOfSensors 1	//@ Name="Number Of Sensors (Max 10)" type=Byte Description="Select number of presets to monitor for to trigger" Category="Triggers"
