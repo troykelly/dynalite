@@ -1,0 +1,72 @@
+
+//@ name="Support Tasks"
+//@ description="Network support tasks that don't fit anywhere else"
+
+#const DayNightArea 254		//@ Name="Day Night Area" Type=Area Description="The area to monitor for day and night changes." Category="Day Night"
+#const PresetDay 4				//@ Name="Day Preset" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
+#const PresetNight 1			//@ Name="Test Area Number" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
+
+#const MasterBedArea 1		              //@ Name="Master Bed Area" Type=Area Description="Master Bedroom." Category="Master Bed"
+#const MasterBedAreaSleepPreset 4				//@ Name="Day Preset" Type=Preset areaparam=MasterBedArea Description="Sleep preset for Master Bed." Category="Master Bed"
+#const MasterEnsuiteArea 1		          //@ Name="Master Ensuite Area" Type=Area Description="Master Bedroom." Category="Master Bed"
+#const MasterEnsuiteSleepPreset 4				//@ Name="Day Preset" Type=Preset areaparam=MasterEnsuiteArea Description="Sleep preset for Master Ensuite." Category="Master Bed"
+#const MasterBalconyArea 1	           	//@ Name="Master Balcony Area" Type=Area Description="Master Bedroom." Category="Master Bed"
+#const MasterBalconySleepPreset 4				//@ Name="Day Preset" Type=Preset areaparam=MasterBalconyArea Description="Sleep preset for Master Balcony." Category="Master Bed"
+#const MasterFadeTimer 10			         	//@ Name="Fade Time" type=FadeTime Description="Fade time" Category="Master Bed"
+
+Startup1()
+{
+	Name="Start Task"
+}
+
+Task1()
+{
+  Name="Task One"
+  NULL
+}
+
+Task2()
+{
+  Name="Master Bed Sleep"
+  Preset(A=MasterBedArea,P=MasterBedAreaSleepPreset,F=MasterFadeTimer)
+  DELAY(0.2)
+  Preset(A=MasterEnsuiteArea,P=MasterEnsuiteSleepPreset,F=MasterFadeTimer)
+  DELAY(0.2)
+  Preset(A=MasterBalconyArea,P=MasterBalconySleepPreset,F=MasterFadeTimer)
+}
+
+Task3()
+{
+  Name="Task Three"
+  NULL
+}
+
+Task4()
+{
+  Name="Task Four"
+  NULL
+}
+
+Task5()
+{
+  Name="Task Five"
+  NULL
+}
+
+Task6()
+{
+  Name="Task Six"
+  NULL
+}
+
+Task7()
+{
+  Name="Task Seven"
+  NULL
+}
+
+Task8()
+{
+  Name="Task Eight"
+  NULL
+}

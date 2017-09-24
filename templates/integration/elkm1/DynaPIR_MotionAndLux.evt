@@ -1,0 +1,33 @@
+
+//@ name="Motion Management"
+//@ description="Motion and day night messaging"
+
+#const DayNightArea 254		//@ Name="Day Night Area" Type=Area Description="The area to monitor for day and night changes." Category="Day Night"
+#const PresetDay 4				//@ Name="Day Preset" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
+#const PresetNight 1			//@ Name="Test Area Number" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
+
+#const MotionArea 255			//@ Name="Motion Area" Type=Area Description="Area to monitor for motion." Category="Motion"
+#const MotionPreset 49    //@ Name="Preset to trigger on Motion" Type=Preset areaparam=MotionArea Description="Preset to send on motion." Category="Motion"
+
+Startup1()
+{
+	Name="Start Task"
+}
+
+Task1()
+{
+  Name="Send Night Message"
+  Preset(A=DayNightArea,P=PresetNight,F=0)
+}
+
+Task2()
+{
+  Name="Send Day Message"
+  Preset(A=DayNightArea,P=PresetDay,F=0)
+}
+
+Task3()
+{
+  Name="Send Motion Message"
+  Preset(A=MotionArea,P=MotionPreset,F=0)
+}
