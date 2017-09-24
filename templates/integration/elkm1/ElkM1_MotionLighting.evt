@@ -61,12 +61,10 @@ Task1()
 	Name="Control Task Motion"
 	start(0x1c,MotionArea,x,x,x,x,x)		//task is triggered on motion area changes
 	Copy @0,~0,7												//copy trigger message
-	Preset(A=100,P=1,F=0)
 	LDA ~10					//Day Night
 	CMP #0 				// Is it night
 	BRZ DayActive	//Process the motion message if it is night
 ProcessMotion:
-	Preset(A=100,P=2,F=0)
 	//Extract Preset Number from Opcode
 	LDA ~3						//Opcode
 	CMP #0x65					// Linear Preset
@@ -149,37 +147,19 @@ PresetNumber:
 	BRZ End									//If yes, jump out of task
 	CMP #Preset10Trigger
 	BRZ MotionDetected
-	Preset(A=100,P=3,F=0)
 	NULL
 MotionDetected:
-	Preset(A=100,P=4,F=0)
 	LDA ~13					//Override flag
-	CMP #0
-	BRZ TestingZero
 	CMP #1
-	BRZ TestingOne
-	Preset(A=100,P=30,F=0)
-	BRA End
-TestingZero:
-	Preset(A=100,P=20,F=0)
-	BRA TestingCont
-TestingOne:
-	Preset(A=100,P=21,F=0)
-	BRA End
-TestingCont:
-	Preset(A=100,P=5,F=0)
+	BRZ End
 	Canceltask(5)
 	Starttask(5)
 	NULL
 DayActive:
-	Preset(A=100,P=6,F=0)
 	LDA #DayMotionTrack
 	CMP #1
 	BRZ ProcessMotion
-	Preset(A=100,P=7,F=0)
-	NULL
 End:
-	Preset(A=100,P=8,F=0)
 }
 
 Task2()
@@ -526,7 +506,6 @@ End:
 Task8()
 {
 	Name="Override Area Preset"
-	PRESET(A=80,P=1,F=0)
 	//Extract Preset Number from Opcode
 	LDA ~3					//Opcode
 	CMP #0x65 				// Linear Preset
@@ -562,11 +541,9 @@ APPLY_BANK:
 PresetNumber:
 	INC              		 // preset number is 1 Based
 	STA ~14
-	PRESET(A=80,P=2,F=0)
 	LDA ~15								// Ignore override for self preset changes
 	CMP #1								// Yes - so
 	BRZ End								// Ignore
-	PRESET(A=80,P=3,F=0)
 	LDA ~14
 	CMP #HomeIdle
 	BRZ RestoreAuto
@@ -580,28 +557,13 @@ PresetNumber:
 	BRZ RestoreAuto
 	CMP #SleepMotion
 	BRZ RestoreAuto
-	PRESET(A=80,P=4,F=0)
 	LDA #1
 	STA ~13
-	LDA ~13					//Override flag
-	CMP #0
-	BRZ TestingZero
-	CMP #1
-	BRZ TestingOne
-	Preset(A=101,P=30,F=0)
-	NULL
-TestingZero:
-	Preset(A=101,P=20,F=0)
-	NULL
-TestingOne:
-	Preset(A=101,P=21,F=0)
 	NULL
 RestoreAuto:
-	PRESET(A=80,P=5,F=0)
 	LDA #0
 	STA ~13
 End:
-	PRESET(A=80,P=6,F=0)
 	LDA #0
 	STA ~15
 }
