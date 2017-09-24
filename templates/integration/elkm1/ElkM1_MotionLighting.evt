@@ -284,7 +284,6 @@ NightHomeIdle:
 	Preset(A=ManagedArea,P=SleepIdle,F=FadeTimer)
 	Null
 End:
-NULL
 }
 
 Task6()
@@ -504,7 +503,6 @@ Task8()
 {
 	Name="Override Area Preset"
 	//Extract Preset Number from Opcode
-
 	LDA ~3					//Opcode
 	CMP #0x65 				// Linear Preset
 	BRZ Linear_Preset
@@ -539,6 +537,10 @@ APPLY_BANK:
 PresetNumber:
 	INC              		 // preset number is 1 Based
 	STA ~14
+	LDA ~15								// Override overrider
+	CMP #1								// Yes - so
+	BRZ End								// Ignore
+	LDA ~14
 	CMP #HomeIdle
 	BRZ RestoreAuto
 	CMP #HomeMotion
@@ -551,9 +553,6 @@ PresetNumber:
 	BRZ RestoreAuto
 	CMP #SleepMotion
 	BRZ RestoreAuto
-	LDA ~15
-	CMP #1
-	BRZ End
 	LDA #1
 	STA ~13
 	Null
