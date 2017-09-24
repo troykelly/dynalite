@@ -199,6 +199,7 @@ Task5()
 	BRZ DelayRestore
 	LDA #1
 	STA ~12					//Store motion active
+	STA ~15					//Set ignore override for a moment
 	LDA ~10					//Day Night
 	CMP #1					//Is it night
 	BRZ NightMotionPreset
@@ -550,6 +551,9 @@ PresetNumber:
 	BRZ RestoreAuto
 	CMP #SleepMotion
 	BRZ RestoreAuto
+	LDA ~15
+	CMP #1
+	BRZ End
 	LDA #1
 	STA ~13
 	Null
@@ -557,4 +561,6 @@ RestoreAuto:
 	LDA #0
 	STA ~13
 End:
+	LDA #0
+	STA ~15
 }
