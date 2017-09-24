@@ -2,9 +2,9 @@
 //@ name="Motion Management"
 //@ description="Motion and event based triggers for the nominated area"
 
-#const ManagedArea 1			//@ Name="Managed Area" Type=Area MatchDevice=True Description="Area being managed" Category="Managed Area"
+#const ManagedArea 5			//@ Name="Managed Area" Type=Area MatchDevice=True Description="Area being managed" Category="Managed Area"
 
-#const DayMotionTrack 1 		//@ Name="Daytime Motion Events" Type=Byte Description="Turn lighting on during the day (0=False, 1=True)" Category="Event Presets"
+#const DayMotionTrack 0 		//@ Name="Daytime Motion Events" Type=Byte Description="Turn lighting on during the day (0=False, 1=True)" Category="Event Presets"
 #const HomeIdle 9				//@ Name="Idle Preset Home" Type=Preset areaparam=ManagedArea Description="Preset for idle state when home." Category="Event Presets"
 #const HomeMotion 10			//@ Name="Motion Preset Home" Type=Preset areaparam=ManagedArea Description="Preset for motion state when home." Category="Event Presets"
 #const AwayIdle 11				//@ Name="Idle Preset Away" Type=Preset areaparam=ManagedArea Description="Preset for idle state when away." Category="Event Presets"
@@ -16,9 +16,9 @@
 
 #const NumberOfSensors 1	//@ Name="Number Of Sensors (Max 10)" type=Byte Description="Select number of presets to monitor for to trigger" Category="Triggers"
 #const MotionArea 255			//@ Name="Motion Area" Type=Area Description="Area to monitor for motion." Category="Triggers"
-#const Preset1Trigger 28	//@ Name="Motion Preset 1" Type=Preset areaparam=MotionArea Description="Preset 1 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=1"
-#const Preset2Trigger 29	//@ Name="Motion Preset 2" Type=Preset areaparam=MotionArea Description="Preset 2 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=2"
-#const Preset3Trigger 30	//@ Name="Motion Preset 3" Type=Preset areaparam=MotionArea Description="Preset 3 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=3"
+#const Preset1Trigger 34	//@ Name="Motion Preset 1" Type=Preset areaparam=MotionArea Description="Preset 1 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=1"
+#const Preset2Trigger 40	//@ Name="Motion Preset 2" Type=Preset areaparam=MotionArea Description="Preset 2 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=2"
+#const Preset3Trigger 44	//@ Name="Motion Preset 3" Type=Preset areaparam=MotionArea Description="Preset 3 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=3"
 #const Preset4Trigger 31	//@ Name="Motion Preset 4" Type=Preset areaparam=MotionArea Description="Preset 4 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=4"
 #const Preset5Trigger 32	//@ Name="Motion Preset 5" Type=Preset areaparam=MotionArea Description="Preset 5 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=5"
 #const Preset6Trigger 33	//@ Name="Motion Preset 6" Type=Preset areaparam=MotionArea Description="Preset 6 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=6"
@@ -28,9 +28,9 @@
 #const Preset10Trigger 37	//@ Name="Motion Preset 10" Type=Preset areaparam=MotionArea Description="Preset 10 to monitor for motion." Category="Triggers" Visible="NumberOfSensors==10"
 
 #const ArmStateArea 255		//@ Name="Arm State Area" Type=Area Description="Area to monitor for arm state changes." Category="Arming State"
-#const ArmStateAway 15		//@ Name="Arm Away Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm away." Category="Arming State"
-#const ArmStateHome 16		//@ Name="Arm Stay Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm home." Category="Arming State"
-#const ArmStateDisarm 17	//@ Name="Disarmed Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for disarm." Category="Arming State"
+#const ArmStateAway 21		//@ Name="Arm Away Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm away." Category="Arming State"
+#const ArmStateHome 22		//@ Name="Arm Stay Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm home." Category="Arming State"
+#const ArmStateDisarm 23	//@ Name="Disarmed Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for disarm." Category="Arming State"
 
 #const DayNightArea 254		//@ Name="Day Night Area" Type=Area Description="The area to monitor for day and night changes." Category="Day Night"
 #const PresetDay 4				//@ Name="Day Preset" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
@@ -42,7 +42,7 @@
 Startup1()
 {
 	Name="Start Task"
-	//Seed memory
+	//Set memory
 	LDA #0
 	STA ~10		//STore Accumulator 10 - Day Night	0=Day 1=Night
 	STA ~11		//STore Accumulator 11 - Arm State	0=Disarm 1=ArmAway 2=ArmHome
@@ -502,6 +502,7 @@ End:
 Task8()
 {
 	Name="Override Area Preset"
+	PRESET(A=80,P=1,F=0)
 	//Extract Preset Number from Opcode
 	LDA ~3					//Opcode
 	CMP #0x65 				// Linear Preset
@@ -537,9 +538,11 @@ APPLY_BANK:
 PresetNumber:
 	INC              		 // preset number is 1 Based
 	STA ~14
-	LDA ~15								// Override overrider
+	PRESET(A=80,P=2,F=0)
+	LDA ~15								// Ignore override for self preset changes
 	CMP #1								// Yes - so
 	BRZ End								// Ignore
+	PRESET(A=80,P=3,F=0)
 	LDA ~14
 	CMP #HomeIdle
 	BRZ RestoreAuto
@@ -553,13 +556,16 @@ PresetNumber:
 	BRZ RestoreAuto
 	CMP #SleepMotion
 	BRZ RestoreAuto
+	PRESET(A=80,P=4,F=0)
 	LDA #1
 	STA ~13
 	Null
 RestoreAuto:
+	PRESET(A=80,P=5,F=0)
 	LDA #0
 	STA ~13
 End:
+	PRESET(A=80,P=6,F=0)
 	LDA #0
 	STA ~15
 }
