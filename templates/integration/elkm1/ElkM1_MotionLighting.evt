@@ -1,0 +1,560 @@
+
+//@ name="Motion Management"
+//@ description="Motion and event based triggers for the nominated area"
+
+#const ManagedArea 8			//@ Name="Managed Area" Type=Area MatchDevice=True Description="Area being managed" Category="Managed Area"
+
+#const DayMotionTrack 1 	//@ Name="Daytime Motion Events" Type=Boolean Description="Turn lighting on during the day (0=False, 1=True)" Category="Event Presets"
+#const HomeIdle 9					//@ Name="Idle Preset Home" Type=Preset areaparam=ManagedArea Description="Preset for idle state when home." Category="Event Presets"
+#const HomeMotion 10			//@ Name="Motion Preset Home" Type=Preset areaparam=ManagedArea Description="Preset for motion state when home." Category="Event Presets"
+#const AwayIdle 11				//@ Name="Idle Preset Away" Type=Preset areaparam=ManagedArea Description="Preset for idle state when away." Category="Event Presets"
+#const AwayMotion 12			//@ Name="Motion Preset Away" Type=Preset areaparam=ManagedArea Description="Preset for motion state when away." Category="Event Presets"
+#const SleepIdle 13				//@ Name="Idle Preset Sleep" Type=Preset areaparam=ManagedArea Description="Preset for idle state when sleep." Category="Event Presets"
+#const SleepMotion 14			//@ Name="Motion Preset Sleep" Type=Preset areaparam=ManagedArea Description="Preset for motion state when sleep." Category="Event Presets"
+#const DayMotion 1				//@ Name="Motion Preset Day" Type=Preset areaparam=ManagedArea Description="Preset for motion during the day." Category="Event Presets"
+#const DayState 4					//@ Name="Day Preset" Type=Preset areaparam=ManagedArea Description="Preset for area during the day." Category="Event Presets"
+
+#const NumberOfSensors 1	//@ Name="Number Of Sensors (Max 10)" type=Byte Description="Select number of presets to monitor for to trigger" Category="Triggers"
+#const MotionArea 255			//@ Name="Motion Area" Type=Area Description="Area to monitor for motion." Category="Triggers"
+#const Preset1Trigger 37	//@ Name="Motion Preset 1" Type=Preset areaparam=MotionArea Description="Preset 1 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=1"
+#const Preset2Trigger 29	//@ Name="Motion Preset 2" Type=Preset areaparam=MotionArea Description="Preset 2 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=2"
+#const Preset3Trigger 30	//@ Name="Motion Preset 3" Type=Preset areaparam=MotionArea Description="Preset 3 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=3"
+#const Preset4Trigger 31	//@ Name="Motion Preset 4" Type=Preset areaparam=MotionArea Description="Preset 4 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=4"
+#const Preset5Trigger 32	//@ Name="Motion Preset 5" Type=Preset areaparam=MotionArea Description="Preset 5 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=5"
+#const Preset6Trigger 33	//@ Name="Motion Preset 6" Type=Preset areaparam=MotionArea Description="Preset 6 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=6"
+#const Preset7Trigger 34	//@ Name="Motion Preset 7" Type=Preset areaparam=MotionArea Description="Preset 7 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=7"
+#const Preset8Trigger 35	//@ Name="Motion Preset 8" Type=Preset areaparam=MotionArea Description="Preset 8 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=8"
+#const Preset9Trigger 36	//@ Name="Motion Preset 9" Type=Preset areaparam=MotionArea Description="Preset 9 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=9"
+#const Preset10Trigger 37	//@ Name="Motion Preset 10" Type=Preset areaparam=MotionArea Description="Preset 10 to monitor for motion." Category="Triggers" Visible="NumberOfSensors==10"
+
+#const ArmStateArea 255		//@ Name="Arm State Area" Type=Area Description="Area to monitor for arm state changes." Category="Arming State"
+#const ArmStateAway 15		//@ Name="Arm Away Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm away." Category="Arming State"
+#const ArmStateHome 16		//@ Name="Arm Stay Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm home." Category="Arming State"
+#const ArmStateDisarm 17	//@ Name="Disarmed Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for disarm." Category="Arming State"
+
+#const DayNightArea 254		//@ Name="Day Night Area" Type=Area Description="The area to monitor for day and night changes." Category="Day Night"
+#const PresetDay 4				//@ Name="Day Preset" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
+#const PresetNight 1			//@ Name="Test Area Number" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
+
+#const MotionHoldTimer 10	//@ Name="Motion Hold" Type=DelayTime Description="How long to remain in motion state." Category="Timing"
+#const FadeTimer 4				//@ Name="Fade Time" type=FadeTime Description="Select fade time of preset message" Category="Timing"
+
+Startup1()
+{
+	Name="Start Task"
+	//Seed memory
+	LDA #0
+	STA ~10		//STore Accumulator 10 - Day Night	0=Day 1=Night
+	STA ~11		//STore Accumulator 11 - Arm State	0=Disarm 1=ArmAway 2=ArmHome
+	STA ~12		//STore Accumulator 12 - Motion			0=Idle 1=Motion
+	STA ~13		//STore Accumulator 13 - Override		0=Off 1=On
+	STA ~14		//STore Accumulator 14 - Current Preset
+	STA ~15		//STore Accumulator 15 - Ignore Override
+	Delay(2)
+	DyNet(0x1c,ArmStateArea,0x00,0x63,0x00,0x00,0xff)	//Request current Arm State
+	Delay(1)
+	DyNet(0x1c,DayNightArea,0x00,0x63,0x00,0x00,0xff)	//Request current Day Night State
+}
+
+Task1()
+{
+	Name="Control Task Motion"
+	start(0x1c,MotionArea,x,x,x,x,x)		//task is triggered on motion area changes
+	Copy @0,~0,7												//copy trigger message
+	LDA ~10					//Day Night
+	CMP #1 				// Is it night
+	BRZ ProcessMotion	//Process the motion message if it is night
+	BRA DayActive
+ProcessMotion:
+	//Extract Preset Number from Opcode
+	LDA ~3						//Opcode
+	CMP #0x65					// Linear Preset
+	BRZ Linear_Preset
+	CMP #0x00
+	BRZ APPLY_BANK
+	CMP #0x01
+	BRZ APPLY_BANK
+	CMP #0x02
+	BRZ APPLY_BANK
+	CMP #0x03
+	BRZ APPLY_BANK
+	CMP #0x0A
+	BRZ ADJUST_OPCODE
+	CMP #0x0B
+	BRZ ADJUST_OPCODE
+	CMP #0x0C
+	BRZ ADJUST_OPCODE
+	CMP #0x0D
+	BRZ ADJUST_OPCODE
+	NULL
+Linear_Preset:
+	LDA ~2       			//Load preset code
+	BRA PresetNumber
+ADJUST_OPCODE:
+	SUB #6      			//Adjust opcode
+APPLY_BANK:
+	STA ~8
+	LDA ~5
+	LDX #8
+	MUL
+	ADD ~8
+PresetNumber:
+	INC											//preset number is 1 Based
+	LDX #0									//initialize counter
+	CMP #Preset1Trigger
+	BRZ MotionDetected
+	INCX										//increment counter
+	CMPX #NumberOfSensors		//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	CMP #Preset2Trigger
+	BRZ MotionDetected
+	INCX										//increment counter
+	CMPX #NumberOfSensors		//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	CMP #Preset3Trigger
+	BRZ MotionDetected
+	INCX										//increment counter
+	CMPX #NumberOfSensors		//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	CMP #Preset4Trigger
+	BRZ MotionDetected
+	INCX										//increment counter
+	CMPX #NumberOfSensors		//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	CMP #Preset5Trigger
+	BRZ MotionDetected
+	INCX										//increment counter
+	CMPX #NumberOfSensors		//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	CMP #Preset6Trigger
+	BRZ MotionDetected
+	INCX										//increment counter
+	CMPX #NumberOfSensors		//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	CMP #Preset7Trigger
+	BRZ MotionDetected
+	INCX										//increment counter
+	CMPX #NumberOfSensors		//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	CMP #Preset8Trigger
+	BRZ MotionDetected
+	INCX										//increment counter
+	CMPX #NumberOfSensors		//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	CMP #Preset9Trigger
+	BRZ MotionDetected
+	INCX										//increment counter
+	CMPX #NumberOfSensors		//Counter = number of areas in pathway?
+	BRZ End									//If yes, jump out of task
+	CMP #Preset10Trigger
+	BRZ MotionDetected
+	NULL
+MotionDetected:
+	Canceltask(5)
+	Starttask(5)
+	NULL
+DayActive:
+	LDA #DayMotionTrack
+	CMP #1
+	BRZ ProcessMotion
+	NULL
+End:
+}
+
+Task2()
+{
+	Name="Control Task Day Night"
+	start(0x1c,DayNightArea,x,x,x,x,x)	//task is triggered on day night area changes
+	Copy @0,~0,7												//copy trigger message
+	Canceltask(6)
+	Starttask(6)
+}
+
+Task3()
+{
+	Name="Control Task Arm Disarm"
+	start(0x1c,ArmStateArea,x,x,x,x,x)	//task is triggered on arm state area changes
+	Copy @0,~0,7												//copy trigger message
+	Canceltask(7)
+	Starttask(7)
+}
+
+Task4()
+{
+	Name="Control Task Override"
+	start(0x1c,ManagedArea,x,x,x,x,x)	//task is triggered on managed area preset changes
+	Copy @0,~0,7											//copy trigger message
+	Canceltask(8)
+	Starttask(8)
+}
+
+Task5()
+{
+	Name="Motion Task"
+	LDA ~13					//Override flag
+	CMP #1					//Yes - Override
+	BRZ End
+	LDA ~12						//Motion active
+	CMP #1						//Yes
+	BRZ DelayRestore
+	LDA #1
+	STA ~12					//Store motion active
+	LDA ~10					//Day Night
+	CMP #1					//Is it night
+	BRZ NightMotionPreset
+	LDA #DayMotionTrack	//Track motion during the day
+	CMP #0
+	BRZ End
+	LDA ~14
+	CMP #DayMotion
+	BRZ DelayRestore
+	Preset(A=ManagedArea,P=DayMotion,F=FadeTimer)
+	BRA DelayRestore
+NightMotionPreset:
+	LDA ~11				//Arm State
+	CMP #0				//Disarmed
+	BRZ NightDisarmedMotion
+	CMP #1
+	BRZ NightAwayMotion
+	CMP #2
+	BRZ NightHomeMotion
+	BRA NightDisarmedMotion
+NightDisarmedMotion:
+	LDA ~14
+	CMP #HomeMotion
+	BRZ DelayRestore
+	Preset(A=ManagedArea,P=HomeMotion,F=FadeTimer)
+	BRA DelayRestore
+NightAwayMotion:
+	LDA ~14
+	CMP #AwayMotion
+	BRZ DelayRestore
+	Preset(A=ManagedArea,P=AwayMotion,F=FadeTimer)
+	BRA DelayRestore
+NightHomeMotion:
+	LDA ~14
+	CMP #SleepMotion
+	BRZ DelayRestore
+	Preset(A=ManagedArea,P=SleepMotion,F=FadeTimer)
+	BRA DelayRestore
+DelayRestore:
+	Delay(MotionHoldTimer)
+	LDA #0
+	STA ~12
+	LDA ~13				//Override in effect
+	CMP #1				//Yes
+	BRZ End
+	LDA ~10				//Day Night
+	CMP #1 				//Night Time
+	BRZ NightIdle
+	LDA #DayMotionTrack	//Track motion during the day
+	CMP #0				//No
+	BRZ End
+	LDA ~14
+	CMP #DayState
+	BRZ End
+	Preset(A=ManagedArea,P=DayState,F=FadeTimer)
+	BRA End
+NightIdle:
+	LDA ~11				//Arm State
+	CMP #0				// Disarmed
+	BRZ NightDisarmedIdle
+	CMP #1
+	BRZ NightAwayIdle
+	CMP #2
+	BRZ NightHomeIdle
+	Null
+NightDisarmedIdle:
+	LDA ~14
+	CMP #HomeIdle
+	BRZ End
+	Preset(A=ManagedArea,P=HomeIdle,F=FadeTimer)
+	Null
+NightAwayIdle:
+	LDA ~14
+	CMP #AwayIdle
+	BRZ End
+	Preset(A=ManagedArea,P=AwayIdle,F=FadeTimer)
+	Null
+NightHomeIdle:
+	LDA ~14
+	CMP #SleepIdle
+	BRZ End
+	Preset(A=ManagedArea,P=SleepIdle,F=FadeTimer)
+	Null
+End:
+NULL
+}
+
+Task6()
+{
+	Name="Day Night Tracking"
+	LDA #0					//Reset override
+	STA ~13
+	//Extract Preset Number from Opcode
+	LDA ~3					//Opcode
+	CMP #0x65 				// Linear Preset
+	BRZ Linear_Preset
+	CMP #0x00
+	BRZ APPLY_BANK
+	CMP #0x01
+	BRZ APPLY_BANK
+	CMP #0x02
+	BRZ APPLY_BANK
+	CMP #0x03
+	BRZ APPLY_BANK
+	CMP #0x0A
+	BRZ ADJUST_OPCODE
+	CMP #0x0B
+	BRZ ADJUST_OPCODE
+	CMP #0x0C
+	BRZ ADJUST_OPCODE
+	CMP #0x0D
+	BRZ ADJUST_OPCODE
+	NULL
+Linear_Preset:
+	LDA ~2       			//Load preset code
+	BRA PresetNumber
+ADJUST_OPCODE:
+	SUB #6      			//Ajust opcode
+APPLY_BANK:
+	STA ~8
+	LDA ~5
+	LDX #8
+	MUL
+	ADD ~8
+PresetNumber:
+	INC              		 // preset number is 1 Based
+	CMP #PresetNight
+	BRZ Night
+	CMP #PresetDay
+	BRZ Day
+	Null
+Day:
+	LDA #0
+	STA ~10
+	Preset(A=ManagedArea,P=DayState,F=FadeTimer)
+	Null
+Night:
+	LDA #1
+	STA ~10
+	LDA ~11					//Arm State
+	CMP #0				// Disarmed
+	BRZ NightDisarmed
+	CMP #1
+	BRZ NightAway
+	CMP #2
+	BRZ NightHome
+	Null
+NightDisarmed:
+	LDA ~12
+	CMP #0
+	BRZ NightDisarmedIdle
+	CMP #1
+	BRZ NightDisarmedMotion
+	Null
+NightDisarmedIdle:
+	Preset(A=ManagedArea,P=HomeIdle,F=FadeTimer)
+	Null
+NightDisarmedMotion:
+	Preset(A=ManagedArea,P=HomeMotion,F=FadeTimer)
+	Null
+NightAway:
+	LDA ~12
+	CMP #0
+	BRZ NightAwayIdle
+	CMP #1
+	BRZ NightAwayMotion
+	Null
+NightAwayIdle:
+	Preset(A=ManagedArea,P=AwayIdle,F=FadeTimer)
+	Null
+NightAwayMotion:
+	Preset(A=ManagedArea,P=AwayMotion,F=FadeTimer)
+	Null
+NightHome:
+	LDA ~12
+	CMP #0
+	BRZ NightHomeIdle
+	CMP #1
+	BRZ NightHomeMotion
+	Null
+NightHomeIdle:
+	Preset(A=ManagedArea,P=SleepIdle,F=FadeTimer)
+	Null
+NightHomeMotion:
+	Preset(A=ManagedArea,P=SleepMotion,F=FadeTimer)
+End:
+}
+
+Task7()
+{
+	Name="Arm Disarm Task"
+	LDA #0					//Reset override
+	STA ~13
+	//Extract Preset Number from Opcode
+	LDA ~3					//Opcode
+	CMP #0x65 				// Linear Preset
+	BRZ Linear_Preset
+	CMP #0x00
+	BRZ APPLY_BANK
+	CMP #0x01
+	BRZ APPLY_BANK
+	CMP #0x02
+	BRZ APPLY_BANK
+	CMP #0x03
+	BRZ APPLY_BANK
+	CMP #0x0A
+	BRZ ADJUST_OPCODE
+	CMP #0x0B
+	BRZ ADJUST_OPCODE
+	CMP #0x0C
+	BRZ ADJUST_OPCODE
+	CMP #0x0D
+	BRZ ADJUST_OPCODE
+	NULL
+Linear_Preset:
+	LDA ~2       			//Load preset code
+	BRA PresetNumber
+ADJUST_OPCODE:
+	SUB #6      			//Ajust opcode
+APPLY_BANK:
+	STA ~8
+	LDA ~5
+	LDX #8
+	MUL
+	ADD ~8
+PresetNumber:
+	INC              		 // preset number is 1 Based
+	CMP #ArmStateAway
+	BRZ Away
+	CMP #ArmStateHome
+	BRZ Home
+	CMP #ArmStateDisarm
+	BRZ Disarm
+	Null
+Away:
+	LDA #1
+	STA ~11
+	Jump(SetLighting)
+Home:
+	LDA #2
+	STA ~11
+	Jump(SetLighting)
+Disarm:
+	LDA #0
+	STA ~11
+SetLighting:
+	LDA ~10					//Day Night
+	CMP #1 				// Is it night
+	BRZ Night
+	Null
+Night:
+	LDA ~11					//Arm State
+	CMP #0				// Disarmed
+	BRZ NightDisarmed
+	CMP #1
+	BRZ NightAway
+	CMP #2
+	BRZ NightHome
+	Null
+NightDisarmed:
+	LDA ~12
+	CMP #0
+	BRZ NightDisarmedIdle
+	CMP #1
+	BRZ NightDisarmedMotion
+	Null
+NightDisarmedIdle:
+	Preset(A=ManagedArea,P=HomeIdle,F=FadeTimer)
+	Null
+NightDisarmedMotion:
+	Preset(A=ManagedArea,P=HomeMotion,F=FadeTimer)
+	Null
+NightAway:
+	LDA ~12
+	CMP #0
+	BRZ NightAwayIdle
+	CMP #1
+	BRZ NightAwayMotion
+	Null
+NightAwayIdle:
+	Preset(A=ManagedArea,P=AwayIdle,F=FadeTimer)
+	Null
+NightAwayMotion:
+	Preset(A=ManagedArea,P=AwayMotion,F=FadeTimer)
+	Null
+NightHome:
+	LDA ~12
+	CMP #0
+	BRZ NightHomeIdle
+	CMP #1
+	BRZ NightHomeMotion
+	Null
+NightHomeIdle:
+	Preset(A=ManagedArea,P=SleepIdle,F=FadeTimer)
+	Null
+NightHomeMotion:
+	Preset(A=ManagedArea,P=SleepMotion,F=FadeTimer)
+End:
+}
+
+Task8()
+{
+	Name="Override Area Preset"
+	//Extract Preset Number from Opcode
+
+	LDA ~3					//Opcode
+	CMP #0x65 				// Linear Preset
+	BRZ Linear_Preset
+	CMP #0x00
+	BRZ APPLY_BANK
+	CMP #0x01
+	BRZ APPLY_BANK
+	CMP #0x02
+	BRZ APPLY_BANK
+	CMP #0x03
+	BRZ APPLY_BANK
+	CMP #0x0A
+	BRZ ADJUST_OPCODE
+	CMP #0x0B
+	BRZ ADJUST_OPCODE
+	CMP #0x0C
+	BRZ ADJUST_OPCODE
+	CMP #0x0D
+	BRZ ADJUST_OPCODE
+	NULL
+Linear_Preset:
+	LDA ~2       			//Load preset code
+	BRA PresetNumber
+ADJUST_OPCODE:
+	SUB #6      			//Adjust opcode
+APPLY_BANK:
+	STA ~8
+	LDA ~5
+	LDX #8
+	MUL
+	ADD ~8
+PresetNumber:
+	INC              		 // preset number is 1 Based
+	STA ~14
+	CMP #HomeIdle
+	BRZ RestoreAuto
+	CMP #HomeMotion
+	BRZ RestoreAuto
+	CMP #AwayIdle
+	BRZ RestoreAuto
+	CMP #AwayMotion
+	BRZ RestoreAuto
+	CMP #SleepIdle
+	BRZ RestoreAuto
+	CMP #SleepMotion
+	BRZ RestoreAuto
+	LDA #1
+	STA ~13
+	Null
+RestoreAuto:
+	LDA #0
+	STA ~13
+End:
+}

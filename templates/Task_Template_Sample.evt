@@ -1,0 +1,58 @@
+//@ name="Task Template Sample"
+//@ description="This is a sample to show the available task template parameters"
+
+#const Feature1 0 				//@ Name="Enable Feature 1" Type=Boolean Description="This is a boolean parameter that can be used to show or hide other parameters (0=False, 1=True)"
+#const PrimaryArea 1			//@ Name="Primary Area" Type=Area MatchDevice=True Description="Areas are displayed as trunk Areas and translated to spur Areas when the task is compiled"
+#const PrimaryChannel 1			//@ Name="Primary Channel" Type=Channel AreaParam=PrimaryArea Description="Displays the logical channels for the Area specified in the Primary Area parameter"
+#const PrimaryPreset 1			//@ Name="Primary Preset" Type=Preset AreaParam=PrimaryArea Description="Displays the presets for the Area specified in the Primary Area parameter"
+#const PrimaryChannelLevel 100 	//@ Name="Primary Channel Level" Type=ChannelLevel Description="Channel Level as a percentage for use in ChannelLevel statement"
+#const PrimaryJoin 0xFF			//@ Name="Primary Join" Type=Join
+#const PrimaryFade 2			//@ Name="Primary Fade Time" Type=FadeTime Description="Select fade time of the preset message"
+#const DelayTime 4				//@ Name="Delay Time" Type=DelayTime Description="Select delay between preset messages"
+
+#const DecimalByte 1 			//@ Name="Decimal Byte" Type=Byte Category="Basic Parameters"
+#const HexByte 0xAB 			//@ Name="Hex Byte" Type=Byte Hex=True Category="Basic Parameters" Description="Parameters will also be displayed as hex if the value is preceded by an 0x"
+#const DecimalWord 1234 		//@ Name="Decimal Word" Type=Word Category="Basic Parameters"
+#const HexWord 0xABCD 			//@ Name="Hex Word" Type=Word Hex=True Category="Basic Parameters" Description="Parameters will also be displayed as hex if the value is preceded by an 0x"
+#const SplitWordHigh 0 			//@ Type=HighByte Description="Details of the low word are used when displaying the split word"
+#const SplitWordLow 7 			//@ Name="Split Word" Type=LowByte HighByteParam=SplitWordHigh Category="Basic Parameters" Description="Word parameters in tasks are often required to be split into high and low bytes"
+#const SplitWordHighHex 0xAB 	//@ Type=HighByte Description="Details of the low word are used when displaying the split word"
+#const SplitWordLowHex 0xCD 	//@ Name="Split Word Hex" Type=LowByte HighByteParam=SplitWordHighHex Category="Basic Parameters" Description="Word parameters in tasks are often required to be split into high and low bytes"
+#const FadeTimeHighByte 0 		//@ Type=HighByteFadeTime Description="Details of the low word are used when displaying the split fade time"
+#const FadeTimeLowByte 1 		//@ Name="Split Fade Time" Type=LowByteFadeTime HighByteParam=FadeTimeHighByte Category="Basic Parameters" Description="Fade time split into high and low bytes for use in logical DyNet messages"
+#const ChannelZeroBased 0 		//@ Name="Channel zero based" Type=ChannelZeroBased Category="Basic Parameters" Description="Channels will be converted to be 0 based when task is compiled"
+#const ChannelLevelInverted 1 	//@ Name="Channel Level Inverted" Type=ChannelLevelInverted Category="Basic Parameters" Description="Displayed as a percentage and converted into inverted channel level when task is compiled"
+#const Text1 "Hello world" 		//@ Name="Quoted Text" Type=Text Category="Basic Parameters"
+#const Text2 Sample 			//@ Name="Unquoted Text" Type=Text Category="Basic Parameters"
+#const PresetWithoutArea 1 		//@ Name="Preset without Area" Type=Preset Category="Basic Parameters" SubCategory="Sub Category" Description="Users can enter any preset and the dropdown will display presets 1 - 16"
+#const ChannelWithoutArea 1 	//@ Name="Channel without Area" Type=Channel Category="Basic Parameters" SubCategory="Sub Category" Description="Users can enter any channel and the dropdown will display channels 0 - 64"
+
+#const Feature1NumberChannel 1 	//@ Name="Number of Channels (0 - 4)" Type=Byte Category="Feature 1" Visible="Feature1==1"
+#const Feature1Area 1			//@ Name="Area" Type=Area Category="Feature 1" Visible="Feature1==1"
+#const Feature1Channel1 0		//@ Name="Channel 1" Type=Channel AreaParam=Feature1Area Category="Feature 1" Visible="Feature1==1&&Feature1NumberChannel>=1"
+#const Feature1Channel2 1		//@ Name="Channel 2" Type=Channel AreaParam=Feature1Area Category="Feature 1" Visible="Feature1==1&&Feature1NumberChannel>=2"
+#const Feature1Channel3 2		//@ Name="Channel 3" Type=Channel AreaParam=Feature1Area Category="Feature 1" Visible="Feature1==1&&Feature1NumberChannel>=3"
+#const Feature1Channel4 3		//@ Name="Channel 4" Type=Channel AreaParam=Feature1Area Category="Feature 1" Visible="Feature1==1&&Feature1NumberChannel>=4"
+#const Feature1Join 0xFF		//@ Name="Dependent Join Parameter" Type=Join MasterParam=PrimaryJoin Category="Feature 1" Visible="Feature1==1" Description="Value will be automatically updated when the value of the MasterParam is changed"
+
+#const ReadOnly 1				//@ Name="Read Only" Type=Byte Category="Advanced Parameters" ReadOnly=True
+#const ReadOnlyExpression 1		//@ Name="Read Only Expression" Type=Byte Category="Advanced Parameters" ReadOnly="(DecimalByte==1&&HexByte!=2)||HexWord<0x12"
+#const Visible 1				//@ Name="Visible" Type=Byte Category="Advanced Parameters" Visible=True
+#const VisibleExpression 1		//@ Name="Visible Expression" Type=Byte Category="Advanced Parameters" Visible="(DecimalByte==1&&HexByte!=2)||HexWord<0x12"
+#const NoName 1					//@ Category="Advanced Parameters" Description="Name will default to the #const name"
+#const NoType 1					//@ Name="No Type" Category="Advanced Parameters" Description="Type will default to either byte (or word if value is greater than 255)"
+#const DependentChannel 1		//@ Name="Dependent Channel" Type=Channel AreaParam=Feature1Area MasterParam=PrimaryChannel Category="Advanced Parameters" Description="Value will be automatically updated when the value of the MasterParam is changed"
+
+Task1()
+{
+	Name="Send Preset"
+	Preset(A=PrimaryArea,P=PrimaryPreset,F=PrimaryFade,J=PrimaryJoin)
+	Delay(DelayTime)
+	ChannelLevel(A=PrimaryArea,C=PrimaryChannel,L=PrimaryChannelLevel,J=PrimaryJoin)
+}
+
+Task2()
+{
+	Name="Send4"
+	Send4(Text1)
+}
