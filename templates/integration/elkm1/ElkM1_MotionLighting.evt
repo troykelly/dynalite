@@ -2,10 +2,10 @@
 //@ name="Motion Management"
 //@ description="Motion and event based triggers for the nominated area"
 
-#const ManagedArea 8			//@ Name="Managed Area" Type=Area MatchDevice=True Description="Area being managed" Category="Managed Area"
+#const ManagedArea 1			//@ Name="Managed Area" Type=Area MatchDevice=True Description="Area being managed" Category="Managed Area"
 
-#const DayMotionTrack 1 	//@ Name="Daytime Motion Events" Type=Byte Description="Turn lighting on during the day (0=False, 1=True)" Category="Event Presets"
-#const HomeIdle 9					//@ Name="Idle Preset Home" Type=Preset areaparam=ManagedArea Description="Preset for idle state when home." Category="Event Presets"
+#const DayMotionTrack 1 		//@ Name="Daytime Motion Events" Type=Byte Description="Turn lighting on during the day (0=False, 1=True)" Category="Event Presets"
+#const HomeIdle 9				//@ Name="Idle Preset Home" Type=Preset areaparam=ManagedArea Description="Preset for idle state when home." Category="Event Presets"
 #const HomeMotion 10			//@ Name="Motion Preset Home" Type=Preset areaparam=ManagedArea Description="Preset for motion state when home." Category="Event Presets"
 #const AwayIdle 11				//@ Name="Idle Preset Away" Type=Preset areaparam=ManagedArea Description="Preset for idle state when away." Category="Event Presets"
 #const AwayMotion 12			//@ Name="Motion Preset Away" Type=Preset areaparam=ManagedArea Description="Preset for motion state when away." Category="Event Presets"
@@ -16,7 +16,7 @@
 
 #const NumberOfSensors 1	//@ Name="Number Of Sensors (Max 10)" type=Byte Description="Select number of presets to monitor for to trigger" Category="Triggers"
 #const MotionArea 255			//@ Name="Motion Area" Type=Area Description="Area to monitor for motion." Category="Triggers"
-#const Preset1Trigger 37	//@ Name="Motion Preset 1" Type=Preset areaparam=MotionArea Description="Preset 1 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=1"
+#const Preset1Trigger 28	//@ Name="Motion Preset 1" Type=Preset areaparam=MotionArea Description="Preset 1 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=1"
 #const Preset2Trigger 29	//@ Name="Motion Preset 2" Type=Preset areaparam=MotionArea Description="Preset 2 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=2"
 #const Preset3Trigger 30	//@ Name="Motion Preset 3" Type=Preset areaparam=MotionArea Description="Preset 3 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=3"
 #const Preset4Trigger 31	//@ Name="Motion Preset 4" Type=Preset areaparam=MotionArea Description="Preset 4 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=4"
