@@ -12,6 +12,7 @@
 #const SleepMotion 14			//@ Name="Motion Preset Sleep" Type=Preset areaparam=ManagedArea Description="Preset for motion state when sleep." Category="Event Presets"
 #const DayMotion 1				//@ Name="Motion Preset Day" Type=Preset areaparam=ManagedArea Description="Preset for motion during the day." Category="Event Presets" Visible="DayMotionTrack==1"
 #const DayState 4					//@ Name="Day Preset" Type=Preset areaparam=ManagedArea Description="Preset for area during the day." Category="Event Presets"
+#const RestoreAutoPreset 254		//@ Name="Restore Auto Tracking" Type=Preset areaparam=ManagedArea Description="Preset to restore automation to an aera." Category="Event Presets"
 
 #const NumberOfSensors 1	//@ Name="Number Of Sensors (Max 10)" type=Byte Description="Select number of presets to monitor for to trigger" Category="Triggers"
 #const MotionArea 255			//@ Name="Motion Area" Type=Area Description="Area to monitor for motion." Category="Triggers"
@@ -331,6 +332,7 @@ Day:
 	LDA #0
 	STA ~10
 	Preset(A=ManagedArea,P=DayState,F=FadeTimer)
+	DyNet(0x1c,ManagedArea,0x02,0x48,0xff,0xfa,0xff)	//Turn off panel backlight
 	Null
 Night:
 	LDA #0					//Reset override
@@ -346,6 +348,7 @@ Night:
 	BRZ NightHome
 	Null
 NightDisarmed:
+	DyNet(0x1c,ManagedArea,0x02,0x48,0x01,0xfa,0xff)	//Turn on panel backlight full
 	LDA ~12
 	CMP #0
 	BRZ NightDisarmedIdle
@@ -359,6 +362,7 @@ NightDisarmedMotion:
 	Preset(A=ManagedArea,P=HomeMotion,F=FadeTimer)
 	Null
 NightAway:
+	DyNet(0x1c,ManagedArea,0x02,0x48,0xff,0xfa,0xff)	//Turn off panel backlight
 	LDA ~12
 	CMP #0
 	BRZ NightAwayIdle
@@ -372,6 +376,7 @@ NightAwayMotion:
 	Preset(A=ManagedArea,P=AwayMotion,F=FadeTimer)
 	Null
 NightHome:
+	DyNet(0x1c,ManagedArea,0x02,0x48,0x7f,0xfa,0xff)	//Turn on panel backlight half
 	LDA ~12
 	CMP #0
 	BRZ NightHomeIdle
@@ -462,6 +467,7 @@ Night:
 	BRZ NightHome
 	Null
 NightDisarmed:
+	DyNet(0x1c,ManagedArea,0x02,0x48,0x01,0xfa,0xff)	//Turn on panel backlight full
 	LDA ~12
 	CMP #0
 	BRZ NightDisarmedIdle
@@ -475,6 +481,7 @@ NightDisarmedMotion:
 	Preset(A=ManagedArea,P=HomeMotion,F=FadeTimer)
 	Null
 NightAway:
+	DyNet(0x1c,ManagedArea,0x02,0x48,0xff,0xfa,0xff)	//Turn off panel backlight
 	LDA ~12
 	CMP #0
 	BRZ NightAwayIdle
@@ -488,6 +495,7 @@ NightAwayMotion:
 	Preset(A=ManagedArea,P=AwayMotion,F=FadeTimer)
 	Null
 NightHome:
+	DyNet(0x1c,ManagedArea,0x02,0x48,0x7f,0xfa,0xff)	//Turn on panel backlight half
 	LDA ~12
 	CMP #0
 	BRZ NightHomeIdle
@@ -556,9 +564,17 @@ PresetNumber:
 	BRZ RestoreAuto
 	CMP #SleepMotion
 	BRZ RestoreAuto
+	CMP #RestoreAutoPreset
+	BRZ RestoreAutoAndPreset
 	LDA #1
 	STA ~13
 	NULL
+RestoreAutoAndPreset:
+	LDA #0
+	STA ~13
+	Canceltask(5)
+	Starttask(5)
+	BRA End
 RestoreAuto:
 	LDA #0
 	STA ~13
