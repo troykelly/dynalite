@@ -14,6 +14,11 @@
 #const MasterBalconySleepPreset 4				//@ Name="Belcony Sleep Preset" Type=Preset areaparam=MasterBalconyArea Description="Sleep preset for Master Balcony." Category="Master Bed"
 #const MasterFadeTimer 10			         	//@ Name="Fade Time" type=FadeTime Description="Fade time" Category="Master Bed"
 
+#const StartArea 2			         	//@ Name="Whole Facility Start Area" type=Area Description="Start whole facility areas with this area (min 1)" Category="Whole Facility"
+#const EndArea 17									//@ Name="Whole Facility End Area" Type=Area Description="End after processing this area this area. (max 20)" Category="Whole Facility"
+#const AutoRestorePreset 254			//@ Name="Restore Auto Preset" Type=Preset Description="Send this preset to restore automation" Category="Whole Facility"
+#const AreaOffPreset 4						//@ Name="Area Off Preset" Type=Preset Description="Send this preset turn an area off" Category="Whole Facility"
+
 Startup1()
 {
 	Name="Start Task"
@@ -21,52 +26,368 @@ Startup1()
 
 Task1()
 {
-  Name="Task One"
-  NULL
+	Name="Task One"
+	NULL
 }
 
 Task2()
 {
-  Name="Master Bed Sleep"
-  Preset(A=MasterBedArea,P=MasterBedAreaSleepPreset,F=MasterFadeTimer)
-  DELAY(0.2)
-  Preset(A=MasterEnsuiteArea,P=MasterEnsuiteSleepPreset,F=MasterFadeTimer)
-  DELAY(0.2)
-  Preset(A=MasterBalconyArea,P=MasterBalconySleepPreset,F=MasterFadeTimer)
+	Name="Master Bed Sleep"
+	Preset(A=MasterBedArea,P=MasterBedAreaSleepPreset,F=MasterFadeTimer)
+	DELAY(0.2)
+	Preset(A=MasterEnsuiteArea,P=MasterEnsuiteSleepPreset,F=MasterFadeTimer)
+	DELAY(0.2)
+	Preset(A=MasterBalconyArea,P=MasterBalconySleepPreset,F=MasterFadeTimer)
 }
 
 Task3()
 {
-  Name="Task Three"
-  NULL
+	Name="All Restore Auto"
+	LDX #0									/Initialise counter
+	CMPX #StartArea
+	BRZ StartAt1
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt2
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt3
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt4
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt5
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt6
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt7
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt8
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt9
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt10
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt11
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt12
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt13
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt14
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt15
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt16
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt17
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt18
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt19
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt20
+	BRA End
+StartAt1:
+	Preset(A=1,P=AutoRestorePreset,F=0)
+	LDX #1
+	CMPX #EndArea
+	BRZ End
+StartAt2:
+	Preset(A=2,P=AutoRestorePreset,F=0)
+	LDX #2
+	CMPX #EndArea
+	BRZ End
+StartAt3:
+	Preset(A=3,P=AutoRestorePreset,F=0)
+	LDX #3
+	CMPX #EndArea
+	BRZ End
+StartAt4:
+	Preset(A=4,P=AutoRestorePreset,F=0)
+	LDX #4
+	CMPX #EndArea
+	BRZ End
+StartAt5:
+	Preset(A=5,P=AutoRestorePreset,F=0)
+	LDX #5
+	CMPX #EndArea
+	BRZ End
+StartAt6:
+	Preset(A=6,P=AutoRestorePreset,F=0)
+	LDX #6
+	CMPX #EndArea
+	BRZ End
+StartAt7:
+	Preset(A=7,P=AutoRestorePreset,F=0)
+	LDX #7
+	CMPX #EndArea
+	BRZ End
+StartAt8:
+	Preset(A=8,P=AutoRestorePreset,F=0)
+	LDX #8
+	CMPX #EndArea
+	BRZ End
+StartAt9:
+	Preset(A=9,P=AutoRestorePreset,F=0)
+	LDX #9
+	CMPX #EndArea
+	BRZ End
+StartAt10:
+	Preset(A=10,P=AutoRestorePreset,F=0)
+	LDX #10
+	CMPX #EndArea
+	BRZ End
+StartAt11:
+	Preset(A=11,P=AutoRestorePreset,F=0)
+	LDX #11
+	CMPX #EndArea
+	BRZ End
+StartAt12:
+	Preset(A=12,P=AutoRestorePreset,F=0)
+	LDX #12
+	CMPX #EndArea
+	BRZ End
+StartAt13:
+	Preset(A=13,P=AutoRestorePreset,F=0)
+	LDX #13
+	CMPX #EndArea
+	BRZ End
+StartAt14:
+	Preset(A=14,P=AutoRestorePreset,F=0)
+	LDX #14
+	CMPX #EndArea
+	BRZ End
+StartAt15:
+	Preset(A=15,P=AutoRestorePreset,F=0)
+	LDX #15
+	CMPX #EndArea
+	BRZ End
+StartAt16:
+	Preset(A=16,P=AutoRestorePreset,F=0)
+	LDX #16
+	CMPX #EndArea
+	BRZ End
+StartAt17:
+	Preset(A=17,P=AutoRestorePreset,F=0)
+	LDX #17
+	CMPX #EndArea
+	BRZ End
+StartAt18:
+	Preset(A=18,P=AutoRestorePreset,F=0)
+	LDX #18
+	CMPX #EndArea
+	BRZ End
+StartAt19:
+	Preset(A=19,P=AutoRestorePreset,F=0)
+	LDX #19
+	CMPX #EndArea
+	BRZ End
+StartAt20:
+	Preset(A=20,P=AutoRestorePreset,F=0)
+End:
 }
 
 Task4()
 {
-  Name="Task Four"
-  NULL
+	Name="All Off"
+	LDX #0									/Initialise counter
+	CMPX #StartArea
+	BRZ StartAt1
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt2
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt3
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt4
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt5
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt6
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt7
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt8
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt9
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt10
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt11
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt12
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt13
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt14
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt15
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt16
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt17
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt18
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt19
+	INCX										//increment counter
+	CMPX #StartArea
+	BRZ StartAt20
+	BRA End
+StartAt1:
+	Preset(A=1,P=AreaOffPreset,F=0)
+	LDX #1
+	CMPX #EndArea
+	BRZ End
+StartAt2:
+	Preset(A=2,P=AreaOffPreset,F=0)
+	LDX #2
+	CMPX #EndArea
+	BRZ End
+StartAt3:
+	Preset(A=3,P=AreaOffPreset,F=0)
+	LDX #3
+	CMPX #EndArea
+	BRZ End
+StartAt4:
+	Preset(A=4,P=AreaOffPreset,F=0)
+	LDX #4
+	CMPX #EndArea
+	BRZ End
+StartAt5:
+	Preset(A=5,P=AreaOffPreset,F=0)
+	LDX #5
+	CMPX #EndArea
+	BRZ End
+StartAt6:
+	Preset(A=6,P=AreaOffPreset,F=0)
+	LDX #6
+	CMPX #EndArea
+	BRZ End
+StartAt7:
+	Preset(A=7,P=AreaOffPreset,F=0)
+	LDX #7
+	CMPX #EndArea
+	BRZ End
+StartAt8:
+	Preset(A=8,P=AreaOffPreset,F=0)
+	LDX #8
+	CMPX #EndArea
+	BRZ End
+StartAt9:
+	Preset(A=9,P=AreaOffPreset,F=0)
+	LDX #9
+	CMPX #EndArea
+	BRZ End
+StartAt10:
+	Preset(A=10,P=AreaOffPreset,F=0)
+	LDX #10
+	CMPX #EndArea
+	BRZ End
+StartAt11:
+	Preset(A=11,P=AreaOffPreset,F=0)
+	LDX #11
+	CMPX #EndArea
+	BRZ End
+StartAt12:
+	Preset(A=12,P=AreaOffPreset,F=0)
+	LDX #12
+	CMPX #EndArea
+	BRZ End
+StartAt13:
+	Preset(A=13,P=AreaOffPreset,F=0)
+	LDX #13
+	CMPX #EndArea
+	BRZ End
+StartAt14:
+	Preset(A=14,P=AreaOffPreset,F=0)
+	LDX #14
+	CMPX #EndArea
+	BRZ End
+StartAt15:
+	Preset(A=15,P=AreaOffPreset,F=0)
+	LDX #15
+	CMPX #EndArea
+	BRZ End
+StartAt16:
+	Preset(A=16,P=AreaOffPreset,F=0)
+	LDX #16
+	CMPX #EndArea
+	BRZ End
+StartAt17:
+	Preset(A=17,P=AreaOffPreset,F=0)
+	LDX #17
+	CMPX #EndArea
+	BRZ End
+StartAt18:
+	Preset(A=18,P=AreaOffPreset,F=0)
+	LDX #18
+	CMPX #EndArea
+	BRZ End
+StartAt19:
+	Preset(A=19,P=AreaOffPreset,F=0)
+	LDX #19
+	CMPX #EndArea
+	BRZ End
+StartAt20:
+	Preset(A=20,P=AreaOffPreset,F=0)
+End:
 }
 
 Task5()
 {
-  Name="Task Five"
-  NULL
+Name="Task Five"
+NULL
 }
 
 Task6()
 {
-  Name="Task Six"
-  NULL
+Name="Task Six"
+NULL
 }
 
 Task7()
 {
-  Name="Task Seven"
-  NULL
+Name="Task Seven"
+NULL
 }
 
 Task8()
 {
-  Name="Task Eight"
-  NULL
+Name="Task Eight"
+NULL
 }
