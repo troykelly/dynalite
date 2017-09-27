@@ -204,6 +204,9 @@ Task5()
 IgnoreExistingMotion:
 	LDA #0
 	STA ~16
+	LDA ~12						//Motion active
+	CMP #0						//Yes
+	BRZ IdleStateRestore
 ChangePreset:
 	LDA #1
 	STA ~12					//Store motion active
@@ -252,6 +255,7 @@ NightHomeMotion:
 	BRA DelayRestore
 DelayRestore:
 	Delay(MotionHoldTimer)
+IdleStateRestore:
 	LDA #0
 	STA ~12
 	LDA ~13				//Override in effect
