@@ -11,7 +11,7 @@
 #const SleepIdle 13				//@ Name="Idle Preset Sleep" Type=Preset areaparam=ManagedArea Description="Preset for idle state when sleep." Category="Event Presets"
 #const SleepMotion 14			//@ Name="Motion Preset Sleep" Type=Preset areaparam=ManagedArea Description="Preset for motion state when sleep." Category="Event Presets"
 #const DayMotion 1				//@ Name="Motion Preset Day" Type=Preset areaparam=ManagedArea Description="Preset for motion during the day." Category="Event Presets" Visible="DayMotionTrack==1"
-#const DayState 4					//@ Name="Day Preset" Type=Preset areaparam=ManagedArea Description="Preset for area during the day." Category="Event Presets"
+#const DayState 4					//@ Name="Day Off Preset" Type=Preset areaparam=ManagedArea Description="Preset for area during the day." Category="Event Presets"
 #const RestoreAutoPreset 254		//@ Name="Restore Auto Tracking" Type=Preset areaparam=ManagedArea Description="Preset to restore automation to an aera." Category="Event Presets"
 
 #const NumberOfSensors 1	//@ Name="Number Of Sensors (Max 10)" type=Byte Description="Select number of presets to monitor for to trigger" Category="Triggers"
@@ -38,6 +38,7 @@
 
 #const MotionHoldTimer 10	//@ Name="Motion Hold" Type=DelayTime Description="How long to remain in motion state." Category="Timing"
 #const FadeTimer 4				//@ Name="Fade Time" type=FadeTime Description="Select fade time of preset message" Category="Timing"
+#const CommandDelay	0.2		//@ Name="Command Delay" Type=DelayTime Description="How long between sending commands." Category="Timing"
 
 Startup1()
 {
@@ -50,11 +51,10 @@ Startup1()
 	STA ~13		//STore Accumulator 13 - Override		0=Off 1=On
 	STA ~14		//STore Accumulator 14 - Current Preset
 	STA ~15		//STore Accumulator 15 - Ignore Override
-	Delay(2)
-	Delay(0.2)
+	STA ~16		//STore Accumulator 16 - Restoring Automation
+	Delay(CommandDelay)
 	Dynet(0x1c,ArmStateArea,0x00,0x63,0x00,0x00,0xff)	//Request current Arm State
-	Delay(1)
-	Delay(0.2)
+	Delay(CommandDelay)
 	Dynet(0x1c,DayNightArea,0x00,0x63,0x00,0x00,0xff)	//Request current Day Night State
 }
 
@@ -194,9 +194,17 @@ Task4()
 Task5()
 {
 	Name="Motion Task"
+	LDA ~16
+	CMP #1
+	BRZ IgnoreExistingMotion
 	LDA ~12						//Motion active
 	CMP #1						//Yes
 	BRZ DelayRestore
+	BRA ChangePreset
+IgnoreExistingMotion:
+	LDA #0
+	STA ~16
+ChangePreset:
 	LDA #1
 	STA ~12					//Store motion active
 	STA ~15					//Set ignore override for a moment
@@ -209,7 +217,7 @@ Task5()
 	LDA ~14
 	CMP #DayMotion
 	BRZ DelayRestore
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=DayMotion,F=FadeTimer)
 	BRA DelayRestore
 NightMotionPreset:
@@ -225,21 +233,21 @@ NightDisarmedMotion:
 	LDA ~14
 	CMP #HomeMotion
 	BRZ DelayRestore
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=HomeMotion,F=FadeTimer)
 	BRA DelayRestore
 NightAwayMotion:
 	LDA ~14
 	CMP #AwayMotion
 	BRZ DelayRestore
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=AwayMotion,F=FadeTimer)
 	BRA DelayRestore
 NightHomeMotion:
 	LDA ~14
 	CMP #SleepMotion
 	BRZ DelayRestore
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=SleepMotion,F=FadeTimer)
 	BRA DelayRestore
 DelayRestore:
@@ -258,7 +266,7 @@ DelayRestore:
 	LDA ~14
 	CMP #DayState
 	BRZ End
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=DayState,F=FadeTimer)
 	BRA End
 NightIdle:
@@ -274,21 +282,21 @@ NightDisarmedIdle:
 	LDA ~14
 	CMP #HomeIdle
 	BRZ End
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=HomeIdle,F=FadeTimer)
 	Null
 NightAwayIdle:
 	LDA ~14
 	CMP #AwayIdle
 	BRZ End
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=AwayIdle,F=FadeTimer)
 	Null
 NightHomeIdle:
 	LDA ~14
 	CMP #SleepIdle
 	BRZ End
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=SleepIdle,F=FadeTimer)
 	Null
 End:
@@ -341,9 +349,9 @@ Day:
 	STA ~13
 	LDA #0
 	STA ~10
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=DayState,F=FadeTimer)
-	Delay(0.2)
+	Delay(CommandDelay)
 	Dynet(0x1c,ManagedArea,0x02,0x48,0xff,0xfa,0xff)	//Turn off panel backlight
 	Null
 Night:
@@ -360,7 +368,7 @@ Night:
 	BRZ NightHome
 	Null
 NightDisarmed:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Dynet(0x1c,ManagedArea,0x02,0x48,0x01,0xfa,0xff)	//Turn on panel backlight full
 	LDA ~12
 	CMP #0
@@ -369,15 +377,15 @@ NightDisarmed:
 	BRZ NightDisarmedMotion
 	Null
 NightDisarmedIdle:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=HomeIdle,F=FadeTimer)
 	Null
 NightDisarmedMotion:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=HomeMotion,F=FadeTimer)
 	Null
 NightAway:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Dynet(0x1c,ManagedArea,0x02,0x48,0xff,0xfa,0xff)	//Turn off panel backlight
 	LDA ~12
 	CMP #0
@@ -386,15 +394,15 @@ NightAway:
 	BRZ NightAwayMotion
 	Null
 NightAwayIdle:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=AwayIdle,F=FadeTimer)
 	Null
 NightAwayMotion:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=AwayMotion,F=FadeTimer)
 	Null
 NightHome:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Dynet(0x1c,ManagedArea,0x02,0x48,0x7f,0xfa,0xff)	//Turn on panel backlight half
 	LDA ~12
 	CMP #0
@@ -403,11 +411,11 @@ NightHome:
 	BRZ NightHomeMotion
 	Null
 NightHomeIdle:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=SleepIdle,F=FadeTimer)
 	Null
 NightHomeMotion:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=SleepMotion,F=FadeTimer)
 End:
 }
@@ -488,7 +496,7 @@ Night:
 	BRZ NightHome
 	Null
 NightDisarmed:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Dynet(0x1c,ManagedArea,0x02,0x48,0x01,0xfa,0xff)	//Turn on panel backlight full
 	LDA ~12
 	CMP #0
@@ -497,15 +505,15 @@ NightDisarmed:
 	BRZ NightDisarmedMotion
 	Null
 NightDisarmedIdle:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=HomeIdle,F=FadeTimer)
 	Null
 NightDisarmedMotion:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=HomeMotion,F=FadeTimer)
 	Null
 NightAway:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Dynet(0x1c,ManagedArea,0x02,0x48,0xff,0xfa,0xff)	//Turn off panel backlight
 	LDA ~12
 	CMP #0
@@ -514,15 +522,15 @@ NightAway:
 	BRZ NightAwayMotion
 	Null
 NightAwayIdle:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=AwayIdle,F=FadeTimer)
 	Null
 NightAwayMotion:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=AwayMotion,F=FadeTimer)
 	Null
 NightHome:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Dynet(0x1c,ManagedArea,0x02,0x48,0x7f,0xfa,0xff)	//Turn on panel backlight half
 	LDA ~12
 	CMP #0
@@ -531,11 +539,11 @@ NightHome:
 	BRZ NightHomeMotion
 	Null
 NightHomeIdle:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=SleepIdle,F=FadeTimer)
 	Null
 NightHomeMotion:
-	Delay(0.2)
+	Delay(CommandDelay)
 	Preset(A=ManagedArea,P=SleepMotion,F=FadeTimer)
 End:
 }
@@ -602,6 +610,8 @@ PresetNumber:
 RestoreAutoAndPreset:
 	LDA #0
 	STA ~13
+	LDA #1
+	STA ~16
 	Canceltask(5)
 	Starttask(5)
 	BRA End
