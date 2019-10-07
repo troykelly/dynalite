@@ -1,7 +1,7 @@
 //@ name="Motion Management"
 //@ description="Motion and event based triggers for the nominated area"
 
-#const ManagedArea 11			//@ Name="Managed Area" Type=Area MatchDevice=True Description="Area being managed" Category="Managed Area"
+#const ManagedArea 10			//@ Name="Managed Area" Type=Area MatchDevice=True Description="Area being managed" Category="Managed Area"
 
 #const DayMotionTrack 0 		//@ Name="Daytime Motion Events" Type=Byte Description="Turn lighting on during the day (0=False, 1=True)" Category="Event Presets"
 #const DisarmedIdle 9			//@ Name="Idle Preset Night Disarmed" Type=Preset areaparam=ManagedArea Description="Preset for idle state when home." Category="Event Presets"
@@ -15,9 +15,9 @@
 #const RestoreAutoPreset 64		//@ Name="Restore Auto Tracking" Type=Preset areaparam=ManagedArea Description="Preset to restore automation to an aera." Category="Event Presets"
 
 #const FunctionArea 255		//@ Name="Function Area" Type=Area Description="Area to monitor for motion and arming/disarming messages." Category="Triggers"
-#const NumberOfSensors 2	//@ Name="Number Of Sensors (Max 10)" type=Byte Description="Select number of presets to monitor for to trigger" Category="Triggers"
-#const Preset1Trigger 36	//@ Name="Motion Preset 1" Type=Preset areaparam=FunctionArea Description="Preset 1 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=1"
-#const Preset2Trigger 47	//@ Name="Motion Preset 2" Type=Preset areaparam=FunctionArea Description="Preset 2 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=2"
+#const NumberOfSensors 1	//@ Name="Number Of Sensors (Max 10)" type=Byte Description="Select number of presets to monitor for to trigger" Category="Triggers"
+#const Preset1Trigger 31	//@ Name="Motion Preset 1" Type=Preset areaparam=FunctionArea Description="Preset 1 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=1"
+#const Preset2Trigger 29	//@ Name="Motion Preset 2" Type=Preset areaparam=FunctionArea Description="Preset 2 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=2"
 #const Preset3Trigger 30	//@ Name="Motion Preset 3" Type=Preset areaparam=FunctionArea Description="Preset 3 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=3"
 #const Preset4Trigger 31	//@ Name="Motion Preset 4" Type=Preset areaparam=FunctionArea Description="Preset 4 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=4"
 #const Preset5Trigger 32	//@ Name="Motion Preset 5" Type=Preset areaparam=FunctionArea Description="Preset 5 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=5"
@@ -27,22 +27,27 @@
 #const Preset9Trigger 36	//@ Name="Motion Preset 9" Type=Preset areaparam=FunctionArea Description="Preset 9 to monitor for motion." Category="Triggers" Visible="NumberOfSensors>=9"
 #const Preset10Trigger 37	//@ Name="Motion Preset 10" Type=Preset areaparam=FunctionArea Description="Preset 10 to monitor for motion." Category="Triggers" Visible="NumberOfSensors==10"
 
-#const ArmStateAway 24		//@ Name="Arm Away Preset" Type=Preset areaparam=FunctionArea Description="Preset to monitor for arm away." Category="Arming State"
-#const ArmStateHome 25		//@ Name="Arm Stay Preset" Type=Preset areaparam=FunctionArea Description="Preset to monitor for arm home." Category="Arming State"
-#const ArmStateDisarm 26	//@ Name="Disarmed Preset" Type=Preset areaparam=FunctionArea Description="Preset to monitor for disarm." Category="Arming State"
+#const ArmStateAway 21		//@ Name="Arm Away Preset" Type=Preset areaparam=FunctionArea Description="Preset to monitor for arm away." Category="Arming State"
+#const ArmStateHome 22		//@ Name="Arm Stay Preset" Type=Preset areaparam=FunctionArea Description="Preset to monitor for arm home." Category="Arming State"
+#const ArmStateDisarm 23	//@ Name="Disarmed Preset" Type=Preset areaparam=FunctionArea Description="Preset to monitor for disarm." Category="Arming State"
 
 #const DayNightArea 254		//@ Name="Day Night Area" Type=Area Description="The area to monitor for day and night changes." Category="Day Night"
 #const PresetDay 4			//@ Name="Day Preset" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
 #const PresetNight 1		//@ Name="Test Area Number" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
 
-#const MotionHoldTimer 360.00	//@ Name="Motion Hold" Type=DelayTime Description="How long to remain in motion state." Category="Timing"
-#const FadeTimer 5.00			//@ Name="Fade Time" type=FadeTime Description="Select fade time of preset message" Category="Timing"
-#const CommandDelay	0.45		//@ Name="Command Delay" Type=DelayTime Description="How long between sending commands." Category="Timing"
+#const MotionHoldTimer 900.00	//@ Name="Motion Hold" Type=DelayTime Description="How long to remain in motion state." Category="Timing"
+#const FadeTimer 6.00			//@ Name="Fade Time" type=FadeTime Description="Select fade time of preset message" Category="Timing"
+#const CommandDelay	0.40		//@ Name="Command Delay" Type=DelayTime Description="How long between sending commands." Category="Timing"
 
 #const RequestPresetResponse 0x62
 #const RequestPreset 0x63
 #const RecallPreset 0x64
 #const LinearPreset 0x65
+
+#const BacklightFull 0x01
+#const BacklightLow 0x7F
+#const BacklightOff 0xFF
+#const BacklightFade 0x64
 
 #const AreaDisarmed 0
 #const AreaArmedHome 1
@@ -128,7 +133,6 @@ PRESET_NUMBER:
 	CMP #1
 	BRZ IS_LOADED		// First preset message completes loading
 	Canceltask(6)
-	PRESET(A=61,P=4,F=0)
 	LDA #1
 	STA ~13				// FLAG Set overide
 	BRA END
@@ -504,7 +508,10 @@ NIGHT_DISARMED_MOTION:
 	BRZ END
 	LDA #DisarmedMotion
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=DisarmedMotion,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightFull,BacklightFade,0xFF)
 	BRA END
 
 NIGHT_DISARMED_IDLE:
@@ -513,7 +520,10 @@ NIGHT_DISARMED_IDLE:
 	BRZ END
 	LDA #DisarmedIdle
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=DisarmedIdle,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightLow,BacklightFade,0xFF)
 	BRA END
 
 NIGHT_HOME_MOTION:
@@ -522,7 +532,10 @@ NIGHT_HOME_MOTION:
 	BRZ END
 	LDA #HomeMotion
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=HomeMotion,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightFull,BacklightFade,0xFF)
 	BRA END
 
 NIGHT_HOME_IDLE:
@@ -531,7 +544,10 @@ NIGHT_HOME_IDLE:
 	BRZ END
 	LDA #HomeIdle
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=HomeIdle,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightLow,BacklightFade,0xFF)
 	BRA END
 
 NIGHT_AWAY_MOTION:
@@ -540,7 +556,10 @@ NIGHT_AWAY_MOTION:
 	BRZ END
 	LDA #AwayMotion
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=AwayMotion,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightFull,BacklightFade,0xFF)
 	BRA END
 
 NIGHT_AWAY_IDLE:
@@ -549,7 +568,10 @@ NIGHT_AWAY_IDLE:
 	BRZ END
 	LDA #AwayIdle
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=AwayIdle,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightLow,BacklightFade,0xFF)
 	BRA END
 
 DAY_DISARMED_MOTION:
@@ -558,7 +580,10 @@ DAY_DISARMED_MOTION:
 	BRZ END
 	LDA #DayMotion
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=DayMotion,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightOff,BacklightFade,0xFF)
 	BRA END
 
 DAY_DISARMED_IDLE:
@@ -567,7 +592,10 @@ DAY_DISARMED_IDLE:
 	BRZ END
 	LDA #DayIdle
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=DayIdle,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightOff,BacklightFade,0xFF)
 	BRA END
 
 DAY_HOME_MOTION:
@@ -576,7 +604,10 @@ DAY_HOME_MOTION:
 	BRZ END
 	LDA #DayMotion
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=DayMotion,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightOff,BacklightFade,0xFF)
 	BRA END
 
 DAY_HOME_IDLE:
@@ -585,7 +616,10 @@ DAY_HOME_IDLE:
 	BRZ END
 	LDA #DayIdle
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=DayIdle,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightOff,BacklightFade,0xFF)
 	BRA END
 
 DAY_AWAY_MOTION:
@@ -594,7 +628,10 @@ DAY_AWAY_MOTION:
 	BRZ END
 	LDA #DayMotion
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=DayMotion,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightOff,BacklightFade,0xFF)
 	BRA END
 
 DAY_AWAY_IDLE:
@@ -603,7 +640,10 @@ DAY_AWAY_IDLE:
 	BRZ END
 	LDA #DayIdle
 	STA ~9
+	DELAY(CommandDelay)
 	PRESET(A=ManagedArea,P=DayIdle,F=FadeTimer)
+	DELAY(CommandDelay)
+	DyNet(0x1C,ManagedArea,0x02,0x48,BacklightOff,BacklightFade,0xFF)
 	BRA END
 
 END_IGNORE:
