@@ -1,0 +1,405 @@
+//@ description="Handles requests for day/night state"
+//@ name="Respond to night/day state"
+
+#const DayNightArea 254			//@ Name="Day Night Area" Type=Area Description="The area to monitor for day and night changes." Category="Day Night"
+#const PresetDay 4				//@ Name="Day Preset" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
+#const PresetNight 1			//@ Name="Night Preset" Type=Preset areaparam=DayNightArea Description="Area being tested." Category="Day Night"
+
+#const ArmStateArea 255			//@ Name="Arm State Area" Type=Area Description="Area to monitor for arm state changes." Category="Arming State"
+#const Area1ArmStateAway 15		//@ Name="Area 1 Arm Away Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm away." Category="Arming State"
+#const Area1ArmStateHome 16		//@ Name="Area 1 Arm Stay Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm home." Category="Arming State"
+#const Area1ArmStateDisarm 17	//@ Name="Area 1 Disarmed Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for disarm." Category="Arming State"
+#const Area2ArmStateAway 18		//@ Name="Area 2 Arm Away Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm away." Category="Arming State"
+#const Area2ArmStateHome 19		//@ Name="Area 2 Arm Stay Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm home." Category="Arming State"
+#const Area2ArmStateDisarm 20	//@ Name="Area 2 Disarmed Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for disarm." Category="Arming State"
+#const Area3ArmStateAway 21		//@ Name="Area 3 Arm Away Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm away." Category="Arming State"
+#const Area3ArmStateHome 22		//@ Name="Area 3 Arm Stay Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm home." Category="Arming State"
+#const Area3ArmStateDisarm 23	//@ Name="Area 3 Disarmed Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for disarm." Category="Arming State"
+#const Area4ArmStateAway 24		//@ Name="Area 4 Arm Away Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm away." Category="Arming State"
+#const Area4ArmStateHome 25		//@ Name="Area 4 Arm Stay Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for arm home." Category="Arming State"
+#const Area4ArmStateDisarm 26	//@ Name="Area 4 Disarmed Preset" Type=Preset areaparam=ArmStateArea Description="Preset to monitor for disarm." Category="Arming State"
+
+#const CommandDelay	0.30		//@ Name="Command Delay" Type=DelayTime Description="How long between sending commands." Category="Timing"
+
+Startup1()
+{
+	Name="Start Task"
+	//Set memory
+	LDA #99
+	STA ~10		//STore Accumulator 10 - Day Night	0=Day 1=Night
+	STA ~11		//STore Accumulator 11 - Area 1 Arm State	0=Disarm 1=ArmAway 2=ArmHome
+	STA ~12		//STore Accumulator 12 - Area 2 Arm State	0=Disarm 1=ArmAway 2=ArmHome
+	STA ~13		//STore Accumulator 13 - Area 3 Arm State	0=Disarm 1=ArmAway 2=ArmHome
+	STA ~14		//STore Accumulator 14 - Area 4 Arm State	0=Disarm 1=ArmAway 2=ArmHome
+}
+
+Task1()
+{
+	Name="Follow Day Night Changes"
+	start(0x1c,DayNightArea,x,x,x,x,x)	//task is triggered on day night area changes
+	Copy @0,~0,7												//copy trigger message
+//Extract Preset Number from Opcode
+	LDA ~3					//Opcode
+	CMP #0x63				// State Request
+	BRZ Request_State		
+	CMP #0x65 				// Linear Preset
+	BRZ Linear_Preset
+	CMP #0x00
+	BRZ APPLY_BANK
+	CMP #0x01
+	BRZ APPLY_BANK
+	CMP #0x02
+	BRZ APPLY_BANK
+	CMP #0x03
+	BRZ APPLY_BANK
+	CMP #0x0A
+	BRZ ADJUST_OPCODE
+	CMP #0x0B
+	BRZ ADJUST_OPCODE
+	CMP #0x0C
+	BRZ ADJUST_OPCODE
+	CMP #0x0D
+	BRZ ADJUST_OPCODE
+	NULL
+Request_State:
+	Canceltask(2)
+	Starttask(2)
+	NULL
+Linear_Preset:
+	LDA ~2       			//Load preset code
+	BRA PresetNumber
+ADJUST_OPCODE:
+	SUB #6      			//Ajust opcode
+APPLY_BANK:
+	STA ~8
+	LDA ~5
+	LDX #8
+	MUL
+	ADD ~8
+PresetNumber:
+	INC              		 // preset number is 1 Based
+	CMP #PresetNight
+	BRZ Night
+	CMP #PresetDay
+	BRZ Day
+	NULL
+Day:
+	LDA #0
+	STA ~10
+	NULL
+Night:
+	LDA #1
+	STA ~10
+	NULL
+}
+
+Task2()
+{
+	Name="Answer Day Night request"
+	LDA ~10
+	CMP #0
+	BRZ Day
+	CMP #1
+	BRZ Night
+	NULL
+Day:
+	Delay(CommandDelay)
+	LDA #PresetDay
+	BRA SendResponse
+	NULL
+Night:
+	Delay(CommandDelay)
+	LDA #PresetNight
+SendResponse:
+	CMP #1
+	BRZ SendOne
+	CMP #2
+	BRZ SendTwo
+	CMP #3
+	BRZ SendThree
+	CMP #4
+	BRZ SendFour
+	CMP #5
+	BRZ SendFive
+	CMP #6
+	BRZ SendSix
+	CMP #7
+	BRZ SendSeven
+	CMP #8
+	BRZ SendEight
+	CMP #9
+	BRZ SendNine
+SendOne:
+	Delay(CommandDelay)
+	Dynet(0x1c,DayNightArea,0x00,0x62,0x00,0x00,0xff)
+	NULL
+SendTwo:
+	Delay(CommandDelay)
+	Dynet(0x1c,DayNightArea,0x01,0x62,0x00,0x00,0xff)
+	NULL
+SendThree:
+	Delay(CommandDelay)
+	Dynet(0x1c,DayNightArea,0x02,0x62,0x00,0x00,0xff)
+	NULL
+SendFour:
+	Delay(CommandDelay)
+	Dynet(0x1c,DayNightArea,0x03,0x62,0x00,0x00,0xff)
+	NULL
+SendFive:
+	Delay(CommandDelay)
+	Dynet(0x1c,DayNightArea,0x04,0x62,0x00,0x00,0xff)
+	NULL
+SendSix:
+	Delay(CommandDelay)
+	Dynet(0x1c,DayNightArea,0x05,0x62,0x00,0x00,0xff)
+	NULL
+SendSeven:
+	Delay(CommandDelay)
+	Dynet(0x1c,DayNightArea,0x06,0x62,0x00,0x00,0xff)
+	NULL
+SendEight:
+	Delay(CommandDelay)
+	Dynet(0x1c,DayNightArea,0x07,0x62,0x00,0x00,0xff)
+	NULL
+SendNine:
+	Delay(CommandDelay)
+	Dynet(0x1c,DayNightArea,0x08,0x62,0x00,0x00,0xff)
+	NULL
+}
+
+Task3()
+{
+	Name="Monitor Area Arming"
+	start(0x1c,ArmStateArea,x,x,x,x,x)	//task is triggered on day night area changes
+	Copy @0,~0,7												//copy trigger message
+//Extract Preset Number from Opcode
+	LDA ~3					//Opcode
+	CMP #0x63				// State Request
+	BRZ Request_State		
+	CMP #0x65 				// Linear Preset
+	BRZ Linear_Preset
+	CMP #0x00
+	BRZ APPLY_BANK
+	CMP #0x01
+	BRZ APPLY_BANK
+	CMP #0x02
+	BRZ APPLY_BANK
+	CMP #0x03
+	BRZ APPLY_BANK
+	CMP #0x0A
+	BRZ ADJUST_OPCODE
+	CMP #0x0B
+	BRZ ADJUST_OPCODE
+	CMP #0x0C
+	BRZ ADJUST_OPCODE
+	CMP #0x0D
+	BRZ ADJUST_OPCODE
+	NULL
+Request_State:
+	Canceltask(4)
+	Starttask(4)
+	NULL
+Linear_Preset:
+	LDA ~2       			//Load preset code
+	BRA PresetNumber
+ADJUST_OPCODE:
+	SUB #6      			//Ajust opcode
+APPLY_BANK:
+	STA ~8
+	LDA ~5
+	LDX #8
+	MUL
+	ADD ~8
+PresetNumber:
+	INC              		 // preset number is 1 Based
+	CMP #Area1ArmStateAway
+	BRZ SetArea1ArmStateAway
+	CMP #Area1ArmStateHome
+	BRZ SetArea1ArmStateHome
+	CMP #Area1ArmStateDisarm
+	BRZ SetArea1ArmStateDisarm
+	CMP #Area2ArmStateAway
+	BRZ SetArea2ArmStateAway
+	CMP #Area2ArmStateHome
+	BRZ SetArea2ArmStateHome
+	CMP #Area2ArmStateDisarm
+	BRZ SetArea2ArmStateDisarm
+	CMP #Area3ArmStateAway
+	BRZ SetArea3ArmStateAway
+	CMP #Area3ArmStateHome
+	BRZ SetArea3ArmStateHome
+	CMP #Area3ArmStateDisarm
+	BRZ SetArea3ArmStateDisarm
+	CMP #Area4ArmStateAway
+	BRZ SetArea4ArmStateAway
+	CMP #Area4ArmStateHome
+	BRZ SetArea4ArmStateHome
+	CMP #Area4ArmStateDisarm
+	BRZ SetArea4ArmStateDisarm
+	NULL
+SetArea1ArmStateAway:
+	LDA #1
+	STA ~11
+	NULL
+SetArea1ArmStateHome:
+	LDA #2
+	STA ~11
+	NULL
+SetArea1ArmStateDisarm:
+	LDA #0
+	STA ~11
+	NULL
+SetArea2ArmStateAway:
+	LDA #1
+	STA ~12
+	NULL
+SetArea2ArmStateHome:
+	LDA #2
+	STA ~12
+	NULL
+SetArea2ArmStateDisarm:
+	LDA #0
+	STA ~12
+	NULL
+SetArea3ArmStateAway:
+	LDA #1
+	STA ~13
+	NULL
+SetArea3ArmStateHome:
+	LDA #2
+	STA ~13
+	NULL
+SetArea3ArmStateDisarm:
+	LDA #0
+	STA ~13
+	NULL
+SetArea4ArmStateAway:
+	LDA #1
+	STA ~14
+	NULL
+SetArea4ArmStateHome:
+	LDA #2
+	STA ~14
+	NULL
+SetArea4ArmStateDisarm:
+	LDA #0
+	STA ~14
+	NULL
+}
+
+Task4()
+{
+	Name="Answer Arming State request"
+	Canceltask(5)
+	Starttask(5)
+	Delay(CommandDelay)
+	Canceltask(6)
+	Starttask(6)
+	Delay(CommandDelay)
+	Canceltask(7)
+	Starttask(7)
+	Delay(CommandDelay)
+	Canceltask(8)
+	Starttask(8)
+	Delay(CommandDelay)
+}
+
+Task5()
+{
+	Name="Send Area 1 Arming State"
+	LDA ~11
+	CMP #0
+	BRZ Disarm
+	CMP #1
+	BRZ Away
+	CMP #2
+	BRZ Home
+	NULL
+Disarm:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area1ArmStateDisarm,F=0)
+	NULL
+Away:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area1ArmStateAway,F=0)
+	NULL
+Home:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area1ArmStateHome,F=0)
+	NULL
+}
+
+Task6()
+{
+	Name="Send Area 2 Arming State"
+	LDA ~12
+	CMP #0
+	BRZ Disarm
+	CMP #1
+	BRZ Away
+	CMP #2
+	BRZ Home
+	NULL
+Disarm:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area2ArmStateDisarm,F=0)
+	NULL
+Away:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area2ArmStateAway,F=0)
+	NULL
+Home:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area2ArmStateHome,F=0)
+	NULL
+}
+
+Task7()
+{
+	Name="Send Area 3 Arming State"
+	LDA ~13
+	CMP #0
+	BRZ Disarm
+	CMP #1
+	BRZ Away
+	CMP #2
+	BRZ Home
+	NULL
+Disarm:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area3ArmStateDisarm,F=0)
+	NULL
+Away:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area3ArmStateAway,F=0)
+	NULL
+Home:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area3ArmStateHome,F=0)
+	NULL
+}
+
+Task8()
+{
+	Name="Send Area 4 Arming State"
+	LDA ~14
+	CMP #0
+	BRZ Disarm
+	CMP #1
+	BRZ Away
+	CMP #2
+	BRZ Home
+	NULL
+Disarm:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area4ArmStateDisarm,F=0)
+	NULL
+Away:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area4ArmStateAway,F=0)
+	NULL
+Home:
+	Delay(CommandDelay)
+	Preset(A=ArmStateArea,P=Area4ArmStateHome,F=0)
+	NULL
+}
